@@ -4,6 +4,15 @@ import { Briefcase, Calendar, MapPin, Building, GraduationCap, Users, Award } fr
 
 const experienceData: Experience[] = [
   {
+    title: 'IT & Digital Operations',
+    company: 'PT. Bank Negara Indonesia (Persero) Tbk.',
+    type: 'Pekerjaan / On-site',
+    period: 'Sep 2026 – Sekarang',
+    location: 'Jakarta, Indonesia · On-site',
+    highlights: [],
+    skills: ['Government Technology'],
+  },
+  {
     title: 'Airport Application Strategy Intern',
     company: 'InJourney Airports (PT Angkasa Pura Indonesia)',
     type: 'Magang Industri / Internship',
@@ -122,14 +131,16 @@ const ExperienceSection: React.FC = () => {
                     </div>
 
                     {/* Highlights bullet list */}
-                    <ul className="space-y-2 mb-4 text-xs sm:text-sm text-slate-300 text-left">
-                      {exp.highlights.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-cyan-400 font-bold shrink-0">›</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {exp.highlights.length > 0 && (
+                      <ul className="space-y-2 mb-4 text-xs sm:text-sm text-slate-300 text-left">
+                        {exp.highlights.map((item, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-cyan-400 font-bold shrink-0">›</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                     {/* Skills pills */}
                     <div className={`flex flex-wrap gap-1.5 ${isEven ? 'sm:justify-end' : 'justify-start'}`}>

@@ -5,6 +5,30 @@ import ProjectDetailModal from './ProjectDetailModal';
 
 const projectsData: Project[] = [
   {
+    title: 'Custom Dashboard',
+    subtitle: 'Proyek Dashboard Kustom',
+    description: 'Proyek dashboard kustom berbasis web. Kode sumber lengkap tersedia di repositori GitHub.',
+    tags: ['Web Application', 'Dashboard', 'TypeScript'],
+    imageUrl: '/project-dashboard.svg',
+    sourceUrl: 'https://github.com/Fadilraflians/Dashboard-Custom',
+  },
+  {
+    title: 'Dragon Fruit Classification System',
+    subtitle: 'Klasifikasi Tingkat Kematangan Buah Naga dengan CNN (VGG16 & MobileNetV2)',
+    date: 'November 2025',
+    description: 'Sistem klasifikasi tingkat kematangan buah naga berbasis deep learning (CNN VGG16 dan MobileNetV2), tersedia sebagai aplikasi web Streamlit dan RESTful API FastAPI. Proyek Tugas Akhir.',
+    fullDescription: 'Proyek Tugas Akhir yang mengklasifikasikan tingkat kematangan buah naga dari citra menggunakan dua arsitektur Convolutional Neural Network, yaitu VGG16 dan MobileNetV2. Sistem terdiri dari antarmuka web berbasis Streamlit untuk klasifikasi gambar, serta RESTful API berbasis FastAPI untuk akses programatik, lengkap dengan konfigurasi deployment.',
+    keyHighlights: [
+      'Dua model CNN (VGG16 dan MobileNetV2) untuk klasifikasi kematangan buah naga.',
+      'Aplikasi web Streamlit dengan dua mode input: unggah gambar atau scan langsung lewat kamera.',
+      'RESTful API FastAPI dengan dokumentasi interaktif untuk integrasi dengan sistem lain.',
+      'Siap deploy ke Streamlit Cloud dan Render.com melalui konfigurasi yang sudah disiapkan.',
+    ],
+    tags: ['Machine Learning', 'Computer Vision', 'Web Application', 'Python', 'CNN', 'FastAPI'],
+    imageUrl: '/project-buah-naga.svg',
+    sourceUrl: 'https://github.com/Fadilraflians/App-buah-naga',
+  },
+  {
     title: 'SPACIO – Smart Meeting Room Booking System',
     subtitle: 'Digitized Smart Meeting Room Reservation Platform for InJourney Airports',
     date: 'Agustus 2025',
@@ -67,7 +91,7 @@ const projectsData: Project[] = [
   },
 ];
 
-const categories = ['Semua Proyek', 'Web Application', 'Mobile App', 'System & UMKM'];
+const categories = ['Semua Proyek', 'Web Application', 'Machine Learning', 'Mobile App', 'System & UMKM'];
 
 const ProjectsSection: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('Semua Proyek');

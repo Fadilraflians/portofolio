@@ -1,8 +1,6 @@
 import React from 'react';
 import type { Skill } from '../types';
-import SkillBadge from './SkillBadge';
 import SkillSphere3D from './SkillSphere3D';
-import TiltCard from './TiltCard';
 import { Code, Brain, MonitorSmartphone, Figma, GitMerge, Bot, FlaskConical, Wrench, Languages, BookOpen, Cpu, MessageCircle, Database } from 'lucide-react';
 
 const skillsData: { category: string; skills: Skill[] }[] = [
@@ -60,28 +58,6 @@ const SkillsSection: React.FC = () => {
         {/* Interactive 3D Skill Sphere */}
         <div className="mb-16">
           <SkillSphere3D skills={allSkills} />
-        </div>
-
-        {/* Skill Groups Grid */}
-        <div className="max-w-6xl mx-auto space-y-8">
-          {skillsData.map((categoryGroup, catIndex) => (
-            <TiltCard key={catIndex} max={4} rounded="rounded-3xl">
-            <div
-              className="h-full p-6 sm:p-8 rounded-3xl bg-slate-950/80 border border-slate-800/80 backdrop-blur-md shadow-xl"
-            >
-              <h3 className="text-xl font-bold text-white mb-6 pb-3 border-b border-slate-900 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
-                <span>{categoryGroup.category}</span>
-              </h3>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {categoryGroup.skills.map((skill, index) => (
-                  <SkillBadge key={index} skill={skill} />
-                ))}
-              </div>
-            </div>
-            </TiltCard>
-          ))}
         </div>
 
       </div>
