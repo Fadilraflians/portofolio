@@ -9,9 +9,12 @@ const socialLinks: SocialLink[] = [
 ];
 
 const CONTACT_EMAIL = 'rafli.fadil003@gmail.com';
+// Default transport: FormSubmit (formsubmit.co), no key needed; needs a one-time email activation.
+// If VITE_WEB3FORMS_KEY is set, Web3Forms is used instead.
 const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${CONTACT_EMAIL}`;
 
-type Status = 'idle' | 'sending' | 'success' | 'mailto' | 'error';
+type Status = 'idle' | 'sending' | 'success' | 'error';
 
 const ContactSection: React.FC = () => {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
@@ -39,30 +42,23 @@ const ContactSection: React.FC = () => {
       return;
     }
 
-    // No form key configured yet: hand the message to the visitor's email app instead
-    if (!WEB3FORMS_KEY) {
-      window.location.href = buildMailto(name, email, message);
-      setStatus('mailto');
-      return;
-    }
-
     setStatus('sending');
     setErrorMsg('');
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const subject = `Pesan baru dari portofolio - ${name}`;
+      const res = await fetch(WEB3FORMS_KEY ? 'https://api.web3forms.com/submit' : FORMSUBMIT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
-          subject: `Pesan baru dari portofolio - ${name}`,
-          from_name: 'Portofolio Fadil',
-          name,
-          email,
-          message,
-        }),
+        body: JSON.stringify(
+          WEB3FORMS_KEY
+            ? { access_key: WEB3FORMS_KEY, subject, from_name: 'Portofolio Fadil', name, email, message }
+            : { _subject: subject, _captcha: 'false', _template: 'table', name, email, message },
+        ),
       });
-      const data = (await res.json().catch(() => null)) as { success?: boolean; message?: string } | null;
-      if (!res.ok || !data?.success) throw new Error(data?.message || 'Pesan gagal dikirim.');
+      const data = (await res.json().catch(() => null)) as { success?: boolean | string; message?: string } | null;
+      // FormSubmit returns success as the string "true"/"false"
+      const ok = data?.success === true || data?.success === 'true';
+      if (!res.ok || !ok) throw new Error(data?.message || 'Pesan gagal dikirim.');
       setFormState({ name: '', email: '', message: '' });
       setStatus('success');
     } catch (err) {
@@ -77,7 +73,7 @@ const ContactSection: React.FC = () => {
     }
   };
 
-  const done = status === 'success' || status === 'mailto';
+  const done = status === 'success';
 
   return (
     <section id="contact" className="py-24 relative z-10 overflow-hidden bg-[#07090e]/25">
@@ -176,13 +172,9 @@ const ContactSection: React.FC = () => {
                 <div className="p-4 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">
-                  {status === 'mailto' ? 'Aplikasi Email Dibuka' : 'Pesan Berhasil Terkirim!'}
-                </h3>
+                <h3 className="text-2xl font-bold text-white">Pesan Berhasil Terkirim!</h3>
                 <p className="text-sm text-slate-400 max-w-md">
-                  {status === 'mailto'
-                    ? 'Pesan Anda sudah disiapkan di aplikasi email. Tekan Kirim di sana untuk menyelesaikannya.'
-                    : 'Terima kasih atas pesan Anda. Fadil akan membalas melalui email secepatnya.'}
+                  Terima kasih atas pesan Anda. Fadil akan membalas melalui email secepatnya.
                 </p>
                 <button
                   type="button"

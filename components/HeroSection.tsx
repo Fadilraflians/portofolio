@@ -138,8 +138,8 @@ const HeroSection: React.FC = () => {
               <span className="w-0.5 h-6 bg-cyan-400 animate-pulse"></span>
             </div>
 
-            <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-xl font-normal">
-              Fresh Graduate S1 Informatika <strong className="text-white font-semibold">Telkom University (IPK 3.66/4.00)</strong> yang memiliki passion mendalam di bidang <strong className="text-cyan-300 font-semibold">Web Development</strong>, <strong className="text-cyan-300 font-semibold">Machine Learning</strong>, dan <strong className="text-cyan-300 font-semibold">Data Science</strong>. Berpengalaman di <strong className="text-white font-semibold">InJourney Airports</strong> & <strong className="text-white font-semibold">GDSC</strong> dalam merancang arsitektur sistem digital dan solusi AI berbasis data.
+            <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-xl font-normal text-justify">
+              Lulusan S1 Informatika <strong className="text-white font-semibold">Telkom University (IPK 3.66/4.00)</strong> yang kini berkarya di <strong className="text-white font-semibold">IT & Digital Operations BNI</strong>. Berfokus pada <strong className="text-cyan-300 font-semibold">Web Development</strong>, <strong className="text-cyan-300 font-semibold">Machine Learning</strong>, dan <strong className="text-cyan-300 font-semibold">Data Science</strong>, dengan pengalaman membangun dashboard <strong className="text-white font-semibold">React & Oracle</strong> lengkap dengan chatbot AI dan visualisasi 3D. Sebelumnya di <strong className="text-white font-semibold">InJourney Airports</strong> & <strong className="text-white font-semibold">GDSC</strong>.
             </p>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-slate-500">
@@ -225,7 +225,10 @@ const HeroSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Frame styled to match the About photo */}
+              {/* Frame styled to match the About photo. Backdrop glow is always on; edge ring + shine light up on hover/touch */}
+              <div
+                className={`relative rounded-3xl shadow-[0_0_70px_rgba(34,211,238,0.3)] ${isHovered ? 'border-flow' : ''}`}
+              >
               <div className="p-3 rounded-3xl bg-slate-950/80 border border-slate-800 shadow-2xl relative overflow-hidden group">
                 <div className="h-[396px] sm:h-[456px] rounded-2xl overflow-hidden relative bg-[#cacaca]">
                   {/* Wrapper carries the hover zoom; the photo inside is nudged up and slightly enlarged to trim the headroom */}
@@ -276,6 +279,13 @@ const HeroSection: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Shine sweep across the frame */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-y-0 -left-1/2 w-1/2 pointer-events-none z-30 -skew-x-12 bg-gradient-to-r from-transparent via-cyan-200/45 to-transparent -translate-x-full group-hover:translate-x-[320%] transition-transform duration-[1100ms] ease-out"
+                />
+              </div>
               </div>
 
               {/* Single quiet badge */}
