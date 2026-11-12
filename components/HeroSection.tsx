@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { supportsWebGL } from './three/inputState';
+import Scanner from './Scanner';
 
 const HeroCore3D = lazy(() => import('./three/HeroCore3D'));
 import { Send, Download, Github, Linkedin, MapPin, GraduationCap, Sparkles, Terminal, Award } from 'lucide-react';
@@ -96,6 +97,39 @@ const HeroSection: React.FC = () => {
       {/* Background Radial Ambient Glows */}
       <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none animate-pulse-glow" style={{ animationDelay: '2s' }}></div>
+
+      {/* React Bits Scanner: WebGL scanning-line field behind the hero */}
+      {webgl && (
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          aria-hidden="true"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, #000 55%, transparent 100%)',
+            maskImage: 'linear-gradient(to bottom, #000 55%, transparent 100%)',
+          }}
+        >
+          <Scanner
+            color1="#0891b2"
+            color2="#a78bfa"
+            color3="#ffffff"
+            speed={0.5}
+            sweepSpeed={0.22}
+            sweepWidth={1.6}
+            trail={0.55}
+            ripple={0.22}
+            bandDensity={11}
+            glow={0.6}
+            scanDirection="diagonal"
+            colorSpread={0.7}
+            vignette={0.55}
+            opacity={0.65}
+            scanline
+            scanlineIntensity={0.5}
+            mouseInteraction
+            clickEffect="ping"
+          />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 sm:px-6 xl:px-12 z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -236,22 +270,27 @@ const HeroSection: React.FC = () => {
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {/* Photo Frame Container with Adjusted Alignment to Prevent Top Clipping */}
-                <div className="relative h-[420px] sm:h-[480px] w-full rounded-[1.6rem] overflow-hidden bg-slate-900">
+                <div className="relative h-[420px] sm:h-[480px] w-full rounded-[1.6rem] overflow-hidden bg-[#cacaca]">
                   <img
                     src="/fadil-photo.png"
                     alt="Fadil Rafliansyah"
-                    className="w-full h-full object-cover object-[center_top] filter brightness-[0.98] transition-transform duration-500"
+                    className="w-full h-full object-contain object-top filter brightness-[0.98] transition-transform duration-500"
+                    style={{
+                      // Whole upper body fits; side edges feather into the photo's matching grey backdrop
+                      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%)',
+                      maskImage: 'linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%)',
+                    }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/profile.jpg';
                     }}
                   />
                   {/* Bottom Gradient Fade */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-[#090d16]/20 to-transparent"></div>
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#090d16]/85 to-transparent"></div>
                 </div>
 
                 {/* Code Snippet Box Overlay at Bottom of Card */}
                 <div
-                  className="absolute bottom-4 left-4 right-4 bg-[#0a0f1d]/95 backdrop-blur-md rounded-xl border border-slate-700/70 p-3.5 shadow-2xl font-mono text-xs z-20"
+                  className="absolute bottom-3 left-3 right-3 bg-[#0a0f1d]/90 backdrop-blur-md rounded-xl border border-slate-700/70 p-3 shadow-2xl font-mono text-[11px] sm:text-xs z-20"
                   style={{
                     transform: 'translateZ(30px)',
                   }}

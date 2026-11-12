@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { Menu, X, Sparkles } from 'lucide-react';
 
 const navItems = [
@@ -16,6 +16,49 @@ const Header: React.FC = () => {
   const [activeSection, setActiveSection] = useState('#hero');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // Rubber sliding pill behind the desktop nav buttons
+  const navRef = useRef<HTMLElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const lastLeft = useRef<number | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [pill, setPill] = useState({ left: 0, right: 0, visible: false, goingRight: true, animate: false });
+  const pillTarget = hovered ?? activeSection;
+
+  const measurePill = useCallback(() => {
+    const nav = navRef.current;
+    const link = linkRefs.current[pillTarget];
+    if (!nav || !link || nav.clientWidth === 0) {
+      setPill((p) => (p.visible ? { ...p, visible: false } : p));
+      return;
+    }
+    const left = link.offsetLeft;
+    const right = nav.clientWidth - (left + link.offsetWidth);
+    const first = lastLeft.current === null;
+    const goingRight = first ? true : left >= (lastLeft.current as number);
+    lastLeft.current = left;
+    setPill((p) => ({ left, right, visible: true, goingRight: first ? p.goingRight : goingRight, animate: !first }));
+  }, [pillTarget]);
+
+  useLayoutEffect(() => {
+    measurePill();
+  }, [measurePill]);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const ro = new ResizeObserver(() => measurePill());
+    ro.observe(nav);
+    document.fonts?.ready.then(() => measurePill());
+    return () => ro.disconnect();
+  }, [measurePill]);
+
+  // The edge that leads the move is fast, the trailing edge lags and overshoots: the pill stretches like rubber
+  const LEAD = '0.36s cubic-bezier(0.34, 1.7, 0.5, 1)';
+  const TRAIL = '0.62s cubic-bezier(0.34, 1.45, 0.5, 1) 0.07s';
+  const pillTransition = pill.animate
+    ? `left ${pill.goingRight ? TRAIL : LEAD}, right ${pill.goingRight ? LEAD : TRAIL}, opacity 0.25s ease`
+    : 'opacity 0.25s ease';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,18 +129,38 @@ const Header: React.FC = () => {
         </a>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+        <nav
+          ref={navRef}
+          onMouseLeave={() => setHovered(null)}
+          className="relative hidden lg:flex items-center gap-1 xl:gap-2"
+        >
+          {/* Rubber sliding pill */}
+          <span
+            aria-hidden="true"
+            className="absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-cyan-500/25 via-blue-500/25 to-purple-500/25 border border-cyan-400/40 shadow-[0_0_18px_rgba(34,211,238,0.3)] pointer-events-none"
+            style={{
+              left: pill.left,
+              right: pill.right,
+              opacity: pill.visible ? 1 : 0,
+              transition: pillTransition,
+            }}
+          />
           {navItems.map((item) => {
             const isActive = activeSection === item.href;
+            const isTarget = pillTarget === item.href;
             return (
               <a
                 key={item.href}
+                ref={(el) => {
+                  linkRefs.current[item.href] = el;
+                }}
                 href={item.href}
                 onClick={(e) => scrollToSection(e, item.href)}
-                className={`relative px-3 py-1.5 rounded-full text-xs xl:text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 shadow-sm shadow-cyan-500/20'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
+                onMouseEnter={() => setHovered(item.href)}
+                onFocus={() => setHovered(item.href)}
+                onBlur={() => setHovered(null)}
+                className={`relative z-10 px-3 py-1.5 rounded-full text-xs xl:text-sm font-medium transition-colors duration-200 ${
+                  isTarget ? 'text-white' : isActive ? 'text-cyan-300' : 'text-slate-300'
                 }`}
               >
                 {item.label}
