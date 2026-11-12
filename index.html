@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fadil Rafliansyah | Web Developer & Machine Learning Specialist</title>
+    <meta name="description" content="Portofolio Fadil Rafliansyah - Fresh Graduate S1 Informatika Telkom University (IPK 3.66/4.00) spesialisasi Web Development, Machine Learning, dan Computer Vision." />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              mono: ['"Fira Code"', 'monospace'],
+            },
+            colors: {
+              brand: {
+                dark: '#0a0d14',
+                card: '#121824',
+                cyan: '#06b6d4',
+                blue: '#3b82f6',
+                purple: '#8b5cf6',
+                accent: '#00f2fe'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #07090e;
+        color: #e2e8f0;
+        overflow-x: hidden;
+      }
+      
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #07090e;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #1e293b;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #06b6d4;
+      }
+
+      /* Glowing borders & glassmorphism */
+      .glass-card {
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      
+      .glass-card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card-hover:hover {
+        border-color: rgba(6, 182, 212, 0.4);
+        box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.25);
+        transform: translateY(-4px);
+      }
+
+      .glow-border-cyan {
+        position: relative;
+      }
+      .glow-border-cyan::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: linear-gradient(135deg, #00f2fe, #4facfe, #00c6ff);
+        border-radius: inherit;
+        z-index: -1;
+        opacity: 0.7;
+        filter: blur(8px);
+        transition: opacity 0.3s ease;
+      }
+      .glow-border-cyan:hover::before {
+        opacity: 1;
+        filter: blur(12px);
+      }
+
+      /* Animated gradients */
+      .gradient-text-cyan {
+        background: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .gradient-text-bold {
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      @keyframes floatSlow {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-12px) rotate(1deg); }
+      }
+
+      @keyframes pulseGlow {
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.05); }
+      }
+
+      .animate-float-slow {
+        animation: floatSlow 5s ease-in-out infinite;
+      }
+
+      .animate-pulse-glow {
+        animation: pulseGlow 4s ease-in-out infinite;
+      }
+
+      /* ===== 3D TILT CARD ===== */
+      .tilt-card {
+        perspective: 1100px;
+        --rx: 0deg; --ry: 0deg; --gx: 50%; --gy: 50%;
+      }
+      .tilt-card-inner {
+        transform: rotateX(var(--rx)) rotateY(var(--ry));
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+        will-change: transform;
+      }
+      .tilt-card[data-active="1"] .tilt-card-inner {
+        transition: transform 0.12s ease-out, box-shadow 0.4s ease;
+        box-shadow: 0 30px 60px -20px rgba(6, 182, 212, 0.35), 0 0 0 1px rgba(34, 211, 238, 0.15);
+      }
+      .tilt-glare {
+        position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+        background: radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.16), rgba(34,211,238,0.06) 30%, transparent 60%);
+        opacity: 0; transition: opacity 0.4s ease; mix-blend-mode: screen; z-index: 40;
+      }
+      .tilt-card[data-active="1"] .tilt-glare { opacity: 1; }
+
+      /* ===== 3D SCROLL REVEAL ===== */
+      .reveal-3d {
+        opacity: 0;
+        transform: perspective(1200px) translate3d(0, 60px, -80px) rotateX(18deg);
+        transform-origin: 50% 100%;
+        transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        transition-delay: var(--reveal-delay, 0ms);
+      }
+      .reveal-3d.is-revealed {
+        opacity: 1;
+        transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg);
+      }
+
+      /* ===== EXTRUDED 3D TEXT ===== */
+      .text-3d {
+        color: #fff;
+        text-shadow:
+          0 1px 0 #cbd5e1, 0 2px 0 #94a3b8, 0 3px 0 #64748b, 0 4px 0 #475569,
+          0 5px 0 #334155, 0 6px 1px rgba(0,0,0,.2), 0 0 8px rgba(34,211,238,.25),
+          0 10px 20px rgba(0,0,0,.45), 0 20px 40px rgba(6,182,212,.18);
+      }
+      .text-3d-glow {
+        filter: drop-shadow(0 6px 0 rgba(8, 145, 178, 0.55)) drop-shadow(0 12px 24px rgba(34, 211, 238, 0.35));
+      }
+
+      /* ===== ORBITS / SKILL SPHERE ===== */
+      @keyframes orbitSpin { to { transform: rotate(360deg); } }
+      .orbit-spin { animation: orbitSpin 40s linear infinite; }
+      .orbit-spin-reverse { animation: orbitSpin 60s linear infinite reverse; }
+      .skill-orb-item > div { transition: border-color .3s, box-shadow .3s, background-color .3s; }
+      .skill-orb-item[data-front="1"] > div {
+        border-color: rgba(34, 211, 238, 0.7);
+        box-shadow: 0 0 28px rgba(34, 211, 238, 0.35);
+      }
+      .skill-orb-item:hover > div {
+        background-color: rgba(8, 145, 178, 0.35);
+        border-color: rgba(103, 232, 249, 0.9);
+      }
+
+      /* Animated gradient border for featured cards */
+      @keyframes borderFlow { to { --angle: 360deg; } }
+      @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+      .border-flow {
+        position: relative;
+        isolation: isolate;
+      }
+      .border-flow::after {
+        content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; z-index: -1;
+        background: conic-gradient(from var(--angle), transparent 0deg, #22d3ee 60deg, #8b5cf6 120deg, transparent 180deg, transparent 360deg);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        animation: borderFlow 6s linear infinite;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .orbit-spin, .orbit-spin-reverse, .border-flow::after, .animate-float-slow, .animate-pulse-glow { animation: none; }
+        .tilt-card-inner { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

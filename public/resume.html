@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fadil Rafliansyah - Resume</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .resume-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .name {
+            font-size: 2.5em;
+            color: #333;
+            margin: 0;
+            font-weight: 700;
+        }
+        .title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .contact {
+            color: #666;
+            font-size: 1em;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .skill-category {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .skill-category h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+        .skill-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .skill-list li {
+            padding: 3px 0;
+            color: #555;
+        }
+        .experience-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+        .job-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 5px 0;
+        }
+        .company {
+            color: #667eea;
+            font-weight: 500;
+            margin: 0 0 5px 0;
+        }
+        .duration {
+            color: #666;
+            font-size: 0.9em;
+            margin: 0 0 10px 0;
+        }
+        .description {
+            color: #555;
+            line-height: 1.5;
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .resume-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <div class="header">
+            <h1 class="name">Fadil Rafliansyah</h1>
+            <p class="title">Senior Frontend Engineer</p>
+            <p class="contact">📧 fadil.rafliansyah@email.com | 📱 +62 812-3456-7890 | 🌐 Jakarta, Indonesia</p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Professional Summary</h2>
+            <p>Passionate Senior Frontend Engineer with 8+ years of experience in building complex web applications. Specialized in React ecosystem, TypeScript, and modern web technologies. Strong advocate for clean code, user-centric design, and collaborative development practices.</p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="skill-grid">
+                <div class="skill-category">
+                    <h4>Frontend Technologies</h4>
+                    <ul class="skill-list">
+                        <li>React & React Hooks</li>
+                        <li>TypeScript & JavaScript</li>
+                        <li>Next.js & Gatsby</li>
+                        <li>Tailwind CSS</li>
+                        <li>UI/UX Design</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h4>Backend & Databases</h4>
+                    <ul class="skill-list">
+                        <li>Node.js & Express</li>
+                        <li>Java & Spring Boot</li>
+                        <li>Python & Django</li>
+                        <li>Golang & Gin</li>
+                        <li>PHP & Laravel</li>
+                        <li>SQL Databases</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h4>Tools & Others</h4>
+                    <ul class="skill-list">
+                        <li>Git & GitHub</li>
+                        <li>REST APIs</li>
+                        <li>GraphQL</li>
+                        <li>C++</li>
+                        <li>CLI Tools</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Professional Experience</h2>
+            
+            <div class="experience-item">
+                <h3 class="job-title">Senior Frontend Engineer</h3>
+                <p class="company">Tech Solutions Inc.</p>
+                <p class="duration">2020 - Present</p>
+                <p class="description">Lead frontend development for enterprise-level applications using React and TypeScript. Implemented modern development practices, mentored junior developers, and collaborated with cross-functional teams to deliver high-quality software solutions.</p>
+            </div>
+
+            <div class="experience-item">
+                <h3 class="job-title">Frontend Developer</h3>
+                <p class="company">Digital Agency Pro</p>
+                <p class="duration">2018 - 2020</p>
+                <p class="description">Developed responsive web applications and maintained existing codebases. Worked closely with designers to implement pixel-perfect UI components and optimized application performance for better user experience.</p>
+            </div>
+
+            <div class="experience-item">
+                <h3 class="job-title">Junior Web Developer</h3>
+                <p class="company">StartupHub</p>
+                <p class="duration">2016 - 2018</p>
+                <p class="description">Started career in web development, learning modern frameworks and best practices. Contributed to various projects and gained experience in full-stack development.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="experience-item">
+                <h3 class="job-title">Bachelor of Computer Science</h3>
+                <p class="company">University of Technology</p>
+                <p class="duration">2012 - 2016</p>
+                <p class="description">Graduated with honors, focusing on software engineering and web development. Active in programming competitions and tech communities.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Certifications</h2>
+            <ul class="skill-list">
+                <li>React Developer Certification - Meta</li>
+                <li>TypeScript Fundamentals - Microsoft</li>
+                <li>AWS Cloud Practitioner</li>
+                <li>Agile Development Methodology</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+
