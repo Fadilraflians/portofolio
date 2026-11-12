@@ -9,8 +9,15 @@ const experienceData: Experience[] = [
     type: 'Pekerjaan / On-site',
     period: 'Sep 2026 – Sekarang',
     location: 'Jakarta, Indonesia · On-site',
-    highlights: [],
-    skills: ['Government Technology'],
+    logoUrl: '/logo-bni.png',
+    highlights: [
+      'Membangun custom dashboard dengan chatbot AI yang dapat ditanya untuk menggali insight dari data.',
+      'Chatbot dapat membuatkan card dan chart secara langsung: pie, line, bar, scatter, area, dan donut chart.',
+      'Mengembangkan frontend dashboard menggunakan React dengan database Oracle.',
+      'Merancang ikon chatbot AI dalam bentuk 3D untuk tampilan dashboard yang lebih interaktif.',
+      'Membuat tampilan peta 3D untuk BOK Puskesmas dan tampilan 3D kantor untuk PMO Tools.',
+    ],
+    skills: ['React', 'Oracle Database', 'AI Chatbot', 'Data Visualization', '3D Visualization', 'Government Technology'],
   },
   {
     title: 'Airport Application Strategy Intern',

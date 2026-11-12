@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Send, Download, Github, Linkedin, MapPin, GraduationCap, Award, Sparkles, Terminal } from 'lucide-react';
 import { supportsWebGL } from './three/inputState';
 import Scanner from './Scanner';
-
-const HeroCore3D = lazy(() => import('./three/HeroCore3D'));
-import { Send, Download, Github, Linkedin, MapPin, GraduationCap, Sparkles, Terminal, Award } from 'lucide-react';
 
 const titles = [
   'Web Developer',
@@ -18,7 +16,7 @@ const HeroSection: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [typingSpeed, setTypingSpeed] = useState(100);
 
-  // 3D Tilt State
+  // 3D tilt for the photo card
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -53,136 +51,111 @@ const HeroSection: React.FC = () => {
     document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Interactive 3D Tilt Handlers
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const tiltTo = (clientX: number, clientY: number) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left - width / 2;
-    const mouseY = e.clientY - rect.top - height / 2;
-
-    const rotateX = (-mouseY / (height / 2)) * 14; // max 14deg tilt X
-    const rotateY = (mouseX / (width / 2)) * 14;  // max 14deg tilt Y
-
-    setRotate({ x: rotateX, y: rotateY });
+    const x = clientX - rect.left - rect.width / 2;
+    const y = clientY - rect.top - rect.height / 2;
+    setRotate({ x: (-y / (rect.height / 2)) * 8, y: (x / (rect.width / 2)) * 8 });
   };
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => tiltTo(e.clientX, e.clientY);
+  const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => {
     setIsHovered(false);
     setRotate({ x: 0, y: 0 });
   };
-
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!cardRef.current || e.touches.length === 0) return;
-    const touch = e.touches[0];
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const touchX = touch.clientX - rect.left - width / 2;
-    const touchY = touch.clientY - rect.top - height / 2;
-
-    const rotateX = (-touchY / (height / 2)) * 14;
-    const rotateY = (touchX / (width / 2)) * 14;
-
-    setRotate({ x: rotateX, y: rotateY });
+    if (e.touches.length > 0) tiltTo(e.touches[0].clientX, e.touches[0].clientY);
   };
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center pt-28 pb-16 overflow-hidden">
-      {/* Background Radial Ambient Glows */}
-      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none animate-pulse-glow" style={{ animationDelay: '2s' }}></div>
+      {/* Calm ambient glows */}
+      <div className="absolute top-1/4 left-[10%] w-[520px] h-[520px] bg-cyan-500/[0.07] rounded-full blur-[140px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-[8%] w-[480px] h-[480px] bg-indigo-500/[0.08] rounded-full blur-[140px] pointer-events-none"></div>
 
-      {/* React Bits Scanner: WebGL scanning-line field behind the hero */}
+      {/* Very faint Scanner texture (React Bits) */}
       {webgl && (
         <div
           className="absolute inset-0 z-0 pointer-events-none"
           aria-hidden="true"
           style={{
-            WebkitMaskImage: 'linear-gradient(to bottom, #000 55%, transparent 100%)',
-            maskImage: 'linear-gradient(to bottom, #000 55%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, #000 70%, transparent 100%)',
+            maskImage: 'linear-gradient(to bottom, #000 70%, transparent 100%)',
           }}
         >
           <Scanner
-            color1="#0891b2"
+            color1="#0e90b0"
             color2="#a78bfa"
             color3="#ffffff"
             speed={0.5}
-            sweepSpeed={0.22}
+            sweepSpeed={0.24}
             sweepWidth={1.6}
-            trail={0.55}
+            trail={0.6}
             ripple={0.22}
-            bandDensity={11}
-            glow={0.6}
+            bandDensity={18}
+            lineWidth={1.4}
+            glow={0.8}
+            brightness={1.25}
             scanDirection="diagonal"
             colorSpread={0.7}
-            vignette={0.55}
-            opacity={0.65}
+            vignette={0.3}
+            opacity={0.8}
             scanline
-            scanlineIntensity={0.5}
+            scanlineIntensity={0.35}
             mouseInteraction
             clickEffect="ping"
           />
         </div>
       )}
 
+      {/* Soft veil so the paragraph stays readable over the scanner lines */}
+      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-r from-[#07090e]/80 via-[#07090e]/40 to-transparent lg:via-[#07090e]/25" aria-hidden="true"></div>
+
       <div className="container mx-auto px-4 sm:px-6 xl:px-12 z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Column: Text & Information */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-6">
-            
-            {/* Status Pill Badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-semibold tracking-wide shadow-sm shadow-cyan-500/10 backdrop-blur-md">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-8 items-center">
+
+          {/* Left: text */}
+          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-7">
+
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-slate-300 text-xs sm:text-sm font-medium tracking-wide backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
               </span>
               <span>Available for Opportunities</span>
             </div>
 
-            {/* Main Name Heading */}
-            <div className="space-y-1">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white tracking-tight leading-[1.1]">
-                <span className="text-3d">FADIL</span> <br className="hidden sm:block" />
-                <span className="gradient-text-cyan text-3d-glow">RAFLIANSYAH</span>
-              </h1>
-            </div>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl xl:text-[5.5rem] font-black text-white tracking-tight leading-[1.02]">
+              FADIL <br className="hidden sm:block" />
+              <span className="gradient-text-cyan">RAFLIANSYAH</span>
+            </h1>
 
-            {/* Dynamic Role Subtitle */}
-            <div className="flex items-center gap-2 text-xl sm:text-2xl md:text-3xl font-bold text-slate-200 h-10">
+            <div className="flex items-center gap-3 text-lg sm:text-2xl font-semibold text-slate-200 h-9">
+              <span className="w-8 h-px bg-gradient-to-r from-cyan-400 to-transparent"></span>
               <span>{displayText}</span>
-              <span className="w-0.5 h-7 bg-cyan-400 animate-pulse"></span>
+              <span className="w-0.5 h-6 bg-cyan-400 animate-pulse"></span>
             </div>
 
-            {/* Profile Bio Summary Paragraph */}
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+            <p className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-xl font-normal">
               Fresh Graduate S1 Informatika <strong className="text-white font-semibold">Telkom University (IPK 3.66/4.00)</strong> yang memiliki passion mendalam di bidang <strong className="text-cyan-300 font-semibold">Web Development</strong>, <strong className="text-cyan-300 font-semibold">Machine Learning</strong>, dan <strong className="text-cyan-300 font-semibold">Data Science</strong>. Berpengalaman di <strong className="text-white font-semibold">InJourney Airports</strong> & <strong className="text-white font-semibold">GDSC</strong> dalam merancang arsitektur sistem digital dan solusi AI berbasis data.
             </p>
 
-            {/* Meta Location & Education Info */}
-            <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400 pt-1">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50">
-                <MapPin className="w-4 h-4 text-cyan-400" />
-                <span>Jakarta, Indonesia</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50">
-                <GraduationCap className="w-4 h-4 text-cyan-400" />
-                <span>Telkom University (3.66/4.00)</span>
-              </div>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm text-slate-500">
+              <span className="inline-flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-cyan-400/80" /> Jakarta, Indonesia
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-cyan-400/80" /> Telkom University
+              </span>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <a
                 href="#contact"
                 onClick={scrollToContact}
-                className="group relative inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white font-bold text-sm sm:text-base shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.03] transition-all duration-300"
+                className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-[1.03] transition-all duration-300"
               >
                 <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 <span>Hubungi Saya</span>
@@ -191,46 +164,35 @@ const HeroSection: React.FC = () => {
               <a
                 href="/resume.pdf"
                 download="CV Fadil Rafliansyah.pdf"
-                className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/50 text-white font-semibold text-sm sm:text-base shadow-md transition-all duration-300"
+                className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-cyan-400/50 text-white font-semibold text-sm sm:text-base transition-all duration-300"
               >
                 <Download className="w-4 h-4 text-cyan-400 group-hover:translate-y-0.5 transition-transform" />
                 <span>Download CV</span>
               </a>
 
-              <div className="flex items-center gap-2 pl-2">
-                <a
-                  href="https://github.com/fadilrafliansyah"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 transition-all shadow-md"
-                  aria-label="GitHub Profile"
-                >
-                  <Github className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://linkedin.com/in/fadilrafliansyah"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 transition-all shadow-md"
-                  aria-label="LinkedIn Profile"
-                >
-                  <Linkedin className="w-5 h-5" />
-                </a>
-              </div>
+              <a
+                href="https://github.com/fadilrafliansyah"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-cyan-400/50 text-slate-300 hover:text-cyan-300 transition-all"
+                aria-label="GitHub Profile"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+              <a
+                href="https://linkedin.com/in/fadilrafliansyah"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-cyan-400/50 text-slate-300 hover:text-cyan-300 transition-all"
+                aria-label="LinkedIn Profile"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
             </div>
-
           </div>
 
-          {/* Right Column: Interactive 3D Perspective Photo Frame */}
-          <div className="lg:col-span-5 flex justify-center relative perspective-1000">
-            {/* WebGL AI Core orbiting behind the photo card */}
-            {webgl && (
-              <div className="absolute -inset-16 sm:-inset-24 lg:-inset-32 z-0 pointer-events-none" aria-hidden="true">
-                <Suspense fallback={null}>
-                  <HeroCore3D />
-                </Suspense>
-              </div>
-            )}
+          {/* Right: photo with soft 3D tilt */}
+          <div className="lg:col-span-5 flex justify-center">
             <div
               ref={cardRef}
               onMouseMove={handleMouseMove}
@@ -239,105 +201,98 @@ const HeroSection: React.FC = () => {
               onTouchMove={handleTouchMove}
               onTouchStart={handleMouseEnter}
               onTouchEnd={handleMouseLeave}
-              className="relative z-10 w-full max-w-md sm:max-w-lg lg:max-w-none cursor-pointer transition-transform ease-out"
+              className="relative w-full max-w-md sm:max-w-lg lg:max-w-none"
               style={{
-                perspective: '1000px',
+                transform: `perspective(1200px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg) scale3d(${isHovered ? 1.015 : 1}, ${isHovered ? 1.015 : 1}, 1)`,
                 transformStyle: 'preserve-3d',
-                transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg) scale3d(${isHovered ? 1.02 : 1}, ${isHovered ? 1.02 : 1}, 1)`,
-                transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1)',
               }}
             >
-              
-              {/* Top Floating Badge */}
+              {/* Soft glow behind the frame */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-purple-500/20 rounded-3xl blur-2xl pointer-events-none"></div>
+
+              {/* Top floating badge */}
               <div
-                className="absolute -top-5 right-4 z-30 flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[#0e1626]/95 border border-cyan-500/40 text-cyan-300 text-xs sm:text-sm font-semibold shadow-2xl backdrop-blur-md transition-all duration-300"
-                style={{
-                  transform: 'translateZ(40px)',
-                }}
+                className="absolute -top-5 right-4 z-30 flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[#0e1626]/95 border border-cyan-500/40 text-cyan-300 text-xs sm:text-sm font-semibold shadow-2xl backdrop-blur-md"
+                style={{ transform: 'translateZ(40px)' }}
               >
                 <div className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-white font-bold">Spacio & AI System</div>
-                  <div className="text-[10px] text-slate-400">Smart Meeting & Analytics</div>
+                  <div className="text-white font-bold">Dashboard & AI Chatbot</div>
+                  <div className="text-[10px] text-slate-400">Insight, Chart & 3D Visualization</div>
                 </div>
               </div>
 
-              {/* Main Futuristic Card Container with Glowing Cyan Border */}
-              <div
-                className="relative rounded-[2rem] p-2 bg-slate-950/70 border-2 border-cyan-500/60 shadow-[0_0_80px_rgba(6,182,212,0.4)] backdrop-blur-sm overflow-hidden"
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                {/* Photo Frame Container with Adjusted Alignment to Prevent Top Clipping */}
-                <div className="relative h-[420px] sm:h-[480px] w-full rounded-[1.6rem] overflow-hidden bg-[#cacaca]">
-                  <img
-                    src="/fadil-photo.png"
-                    alt="Fadil Rafliansyah"
-                    className="w-full h-full object-contain object-top filter brightness-[0.98] transition-transform duration-500"
-                    style={{
-                      // Whole upper body fits; side edges feather into the photo's matching grey backdrop
-                      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%)',
-                      maskImage: 'linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%)',
-                    }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/profile.jpg';
-                    }}
-                  />
-                  {/* Bottom Gradient Fade */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#090d16]/85 to-transparent"></div>
-                </div>
-
-                {/* Code Snippet Box Overlay at Bottom of Card */}
-                <div
-                  className="absolute bottom-3 left-3 right-3 bg-[#0a0f1d]/90 backdrop-blur-md rounded-xl border border-slate-700/70 p-3 shadow-2xl font-mono text-[11px] sm:text-xs z-20"
-                  style={{
-                    transform: 'translateZ(30px)',
-                  }}
-                >
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-                    </div>
-                    <span className="text-[11px] text-slate-400 font-sans flex items-center gap-1">
-                      <Terminal className="w-3 h-3 text-cyan-400" /> engineer_profile.py
-                    </span>
+              {/* Frame styled to match the About photo */}
+              <div className="p-3 rounded-3xl bg-slate-950/80 border border-slate-800 shadow-2xl relative overflow-hidden group">
+                <div className="h-[396px] sm:h-[456px] rounded-2xl overflow-hidden relative bg-[#cacaca]">
+                  {/* Wrapper carries the hover zoom; the photo inside is nudged up and slightly enlarged to trim the headroom */}
+                  <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+                    <img
+                      src="/fadil-photo.png"
+                      alt="Fadil Rafliansyah"
+                      className="block h-full w-auto max-w-full mx-auto object-contain object-top"
+                      style={{
+                        transform: 'translateY(-8%) scale(1.12)',
+                        transformOrigin: 'top center',
+                        // Side edges feather into the photo's matching grey backdrop
+                        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%)',
+                        maskImage: 'linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%)',
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/profile.jpg';
+                      }}
+                    />
                   </div>
-                  <div className="space-y-1 text-slate-300">
-                    <div>
-                      <span className="text-purple-400">name</span>: <span className="text-emerald-400">"Fadil Rafliansyah"</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+
+                  {/* Code snippet box */}
+                  <div
+                    className="absolute bottom-3 left-3 right-3 bg-[#0a0f1d]/90 backdrop-blur-md rounded-xl border border-slate-700/70 p-3.5 shadow-2xl font-mono text-[11px] sm:text-xs z-20"
+                    style={{ transform: 'translateZ(30px)' }}
+                  >
+                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                      </div>
+                      <span className="text-[11px] text-slate-400 font-sans flex items-center gap-1">
+                        <Terminal className="w-3 h-3 text-cyan-400" /> engineer_profile.py
+                      </span>
                     </div>
-                    <div>
-                      <span className="text-purple-400">degree</span>: <span className="text-emerald-400">"S1 Informatika Telkom University"</span>
-                    </div>
-                    <div>
-                      <span className="text-purple-400">skills</span>: [<span className="text-cyan-300">"React"</span>, <span className="text-cyan-300">"FastAPI"</span>, <span className="text-cyan-300">"Python"</span>, <span className="text-cyan-300">"ML"</span>]
+                    <div className="space-y-1 text-slate-300">
+                      <div>
+                        <span className="text-purple-400">name</span>: <span className="text-emerald-400">"Fadil Rafliansyah"</span>
+                      </div>
+                      <div>
+                        <span className="text-purple-400">degree</span>: <span className="text-emerald-400">"S1 Informatika Telkom University"</span>
+                      </div>
+                      <div>
+                        <span className="text-purple-400">skills</span>: [<span className="text-cyan-300">"React"</span>, <span className="text-cyan-300">"FastAPI"</span>, <span className="text-cyan-300">"Python"</span>, <span className="text-cyan-300">"ML"</span>]
+                      </div>
                     </div>
                   </div>
                 </div>
-
               </div>
 
-              {/* Bottom Left GPA Badge with 3D Offset */}
+              {/* Single quiet badge */}
               <div
-                className="absolute -bottom-4 -left-4 z-30 flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#0d1424]/95 border border-cyan-500/40 shadow-2xl backdrop-blur-md"
-                style={{
-                  transform: 'translateZ(50px)',
-                }}
+                className="absolute -bottom-8 -left-4 z-30 flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#0b1220]/90 border border-white/10 shadow-xl backdrop-blur-md"
+                style={{ transform: 'translateZ(40px)' }}
               >
-                <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                <div className="p-2 rounded-xl bg-cyan-500/15 text-cyan-300">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-lg font-extrabold text-white tracking-tight leading-none">
                     3.66 <span className="text-xs text-slate-400 font-normal">/ 4.00</span>
                   </div>
-                  <div className="text-[11px] text-cyan-400 font-medium">GPA (Cum Laude)</div>
+                  <div className="text-[11px] text-cyan-300/90 font-medium">GPA (Cum Laude)</div>
                 </div>
               </div>
-
             </div>
           </div>
 

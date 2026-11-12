@@ -1,29 +1,11 @@
-import React, { Component, Suspense, lazy, useEffect, useRef, useState } from 'react';
-import ConstellationBackground from './ConstellationBackground';
-import { initInputState, supportsWebGL } from './three/inputState';
+import React, { useEffect, useRef } from 'react';
 
-const Scene3DBackground = lazy(() => import('./three/Scene3DBackground'));
-
-/** Falls back to the 2D constellation canvas if WebGL fails at runtime. */
-class WebGLBoundary extends Component<{ children: React.ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? <ConstellationBackground /> : this.props.children;
-  }
-}
-
-/** Background 3D scene, cursor spotlight and scroll progress bar. */
+/** Cursor spotlight and scroll progress bar. */
 const EffectsLayer: React.FC = () => {
-  const [webgl] = useState(() => supportsWebGL());
   const glowRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    initInputState();
-
     let raf = 0;
     let gx = window.innerWidth / 2;
     let gy = window.innerHeight / 3;
@@ -53,22 +35,12 @@ const EffectsLayer: React.FC = () => {
 
   return (
     <>
-      {webgl ? (
-        <WebGLBoundary>
-          <Suspense fallback={null}>
-            <Scene3DBackground />
-          </Suspense>
-        </WebGLBoundary>
-      ) : (
-        <ConstellationBackground />
-      )}
-
       {/* Cursor spotlight */}
       <div
         ref={glowRef}
         aria-hidden="true"
         className="fixed top-0 left-0 z-[1] w-[600px] h-[600px] rounded-full pointer-events-none hidden md:block"
-        style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.09) 0%, rgba(99,102,241,0.05) 35%, transparent 65%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.07) 0%, rgba(99,102,241,0.04) 35%, transparent 65%)' }}
       />
 
       {/* Scroll progress */}

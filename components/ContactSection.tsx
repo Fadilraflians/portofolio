@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { SocialLink } from '../types';
-import { Mail, MessageCircle, Github, Linkedin, Send, CheckCircle2, Sparkles, MapPin, Phone } from 'lucide-react';
+import { Mail, MessageCircle, Github, Linkedin, Send, CheckCircle2, Sparkles, MapPin, Phone, Loader2, AlertCircle } from 'lucide-react';
 
 const socialLinks: SocialLink[] = [
   { name: 'GitHub', url: 'https://github.com/fadilrafliansyah', icon: Github },
@@ -8,19 +8,76 @@ const socialLinks: SocialLink[] = [
   { name: 'WhatsApp', url: 'https://wa.me/6285834324366', icon: MessageCircle },
 ];
 
+const CONTACT_EMAIL = 'rafli.fadil003@gmail.com';
+const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+
+type Status = 'idle' | 'sending' | 'success' | 'mailto' | 'error';
+
 const ContactSection: React.FC = () => {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
+  const [status, setStatus] = useState<Status>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const buildMailto = (name: string, email: string, message: string) =>
+    `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Pesan dari portofolio: ${name}`)}&body=${encodeURIComponent(
+      `Nama: ${name}\nEmail: ${email}\n\n${message}`,
+    )}`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formState.name || !formState.email || !formState.message) return;
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
+    if (status === 'sending') return;
+
+    const name = formState.name.trim();
+    const email = formState.email.trim();
+    const message = formState.message.trim();
+    if (!name || !email || !message) return;
+
+    // Hidden field only bots fill in: pretend it worked, send nothing
+    if (honeypot) {
+      setStatus('success');
+      return;
+    }
+
+    // No form key configured yet: hand the message to the visitor's email app instead
+    if (!WEB3FORMS_KEY) {
+      window.location.href = buildMailto(name, email, message);
+      setStatus('mailto');
+      return;
+    }
+
+    setStatus('sending');
+    setErrorMsg('');
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `Pesan baru dari portofolio - ${name}`,
+          from_name: 'Portofolio Fadil',
+          name,
+          email,
+          message,
+        }),
+      });
+      const data = (await res.json().catch(() => null)) as { success?: boolean; message?: string } | null;
+      if (!res.ok || !data?.success) throw new Error(data?.message || 'Pesan gagal dikirim.');
       setFormState({ name: '', email: '', message: '' });
-    }, 4000);
+      setStatus('success');
+    } catch (err) {
+      setErrorMsg(
+        err instanceof TypeError
+          ? 'Koneksi bermasalah. Periksa internet Anda lalu coba lagi.'
+          : err instanceof Error
+            ? err.message
+            : 'Pesan gagal dikirim.',
+      );
+      setStatus('error');
+    }
   };
+
+  const done = status === 'success' || status === 'mailto';
 
   return (
     <section id="contact" className="py-24 relative z-10 overflow-hidden bg-[#07090e]/25">
@@ -114,18 +171,40 @@ const ContactSection: React.FC = () => {
 
           {/* Interactive Contact Form */}
           <div className="lg:col-span-7 bg-slate-950/80 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
-            {submitted ? (
+            {done ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 animate-fade-in-up">
                 <div className="p-4 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Pesan Berhasil Terkirim!</h3>
+                <h3 className="text-2xl font-bold text-white">
+                  {status === 'mailto' ? 'Aplikasi Email Dibuka' : 'Pesan Berhasil Terkirim!'}
+                </h3>
                 <p className="text-sm text-slate-400 max-w-md">
-                  Terima kasih atas pesan Anda. Fadil akan membalas melalui email secepatnya.
+                  {status === 'mailto'
+                    ? 'Pesan Anda sudah disiapkan di aplikasi email. Tekan Kirim di sana untuk menyelesaikannya.'
+                    : 'Terima kasih atas pesan Anda. Fadil akan membalas melalui email secepatnya.'}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setStatus('idle')}
+                  className="mt-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 text-cyan-300 text-xs font-semibold transition-all"
+                >
+                  Kirim pesan lain
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Honeypot: hidden from people, bots fill it */}
+                <input
+                  type="text"
+                  name="botcheck"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  className="hidden"
+                />
                 <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-cyan-400" />
                   <span>Kirim Pesan Langsung</span>
@@ -167,12 +246,29 @@ const ContactSection: React.FC = () => {
                   />
                 </div>
 
+                {status === 'error' && (
+                  <div role="alert" className="flex items-start gap-2 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-400" />
+                    <span>
+                      {errorMsg} Atau kirim langsung ke{' '}
+                      <a
+                        href={buildMailto(formState.name.trim(), formState.email.trim(), formState.message.trim())}
+                        className="underline font-semibold text-white"
+                      >
+                        {CONTACT_EMAIL}
+                      </a>
+                      .
+                    </span>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+                  disabled={status === 'sending'}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 hover:scale-[1.01] disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-wait transition-all flex items-center justify-center gap-2"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Kirim Pesan</span>
+                  {status === 'sending' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>{status === 'sending' ? 'Mengirim...' : 'Kirim Pesan'}</span>
                 </button>
               </form>
             )}

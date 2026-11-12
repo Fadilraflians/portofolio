@@ -7,8 +7,14 @@ const projectsData: Project[] = [
   {
     title: 'Custom Dashboard',
     subtitle: 'Proyek Dashboard Kustom',
-    description: 'Proyek dashboard kustom berbasis web. Kode sumber lengkap tersedia di repositori GitHub.',
-    tags: ['Web Application', 'Dashboard', 'TypeScript'],
+    description: 'Custom dashboard berbasis React dengan database Oracle, dilengkapi chatbot AI untuk menggali insight dan membuat card serta chart (pie, line, bar, scatter, area, donut).',
+    keyHighlights: [
+      'Chatbot AI untuk bertanya dan menggali insight dari data.',
+      'Pembuatan card dan chart otomatis: pie, line, bar, scatter, area, dan donut.',
+      'Frontend React dengan database Oracle.',
+      'Ikon chatbot AI 3D, tampilan peta 3D untuk BOK Puskesmas, dan tampilan 3D kantor untuk PMO Tools.',
+    ],
+    tags: ['Web Application', 'Dashboard', 'React', 'Oracle', 'AI Chatbot'],
     imageUrl: '/project-dashboard.svg',
     sourceUrl: 'https://github.com/Fadilraflians/Dashboard-Custom',
   },
