@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TiltCard from './TiltCard';
 import type { Certification } from '../types';
 import { Award, Eye, X, CheckCircle2 } from 'lucide-react';
@@ -52,6 +52,106 @@ const certificationsData: Certification[] = [
   },
 ];
 
+const CertCard: React.FC<{ cert: Certification; index: number; onOpen: (c: Certification) => void }> = ({ cert, index, onOpen }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<'pre' | 'in' | 'done'>('pre');
+
+  // Inner content staggers in once the card is on screen, then the class is dropped
+  // so hover animations never replay the entrance.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined' || navigator.webdriver) {
+      setPhase('done');
+      return;
+    }
+    let timer = 0;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        setPhase('in');
+        timer = window.setTimeout(() => setPhase('done'), 1600);
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      clearTimeout(timer);
+    };
+  }, []);
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+    el.style.setProperty('--my', `${e.clientY - r.top}px`);
+  };
+
+  const idx = (n: number) => ({ '--i': n } as React.CSSProperties);
+
+  return (
+    <div
+      ref={ref}
+      onPointerMove={onMove}
+      className={`cert-card h-full p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-cyan-500/40 backdrop-blur-md shadow-xl flex flex-col justify-between group ${
+        phase === 'pre' ? 'cert-pre' : phase === 'in' ? 'cert-in' : ''
+      }`}
+    >
+      <span className="cert-shine" aria-hidden="true" />
+
+      <div>
+        <div className="flex items-start gap-4 mb-4">
+          <div
+            className="cert-medal p-3 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400 shrink-0"
+            style={idx(0)}
+          >
+            <Award className="w-5 h-5" />
+          </div>
+          <div className="cert-text min-w-0">
+            <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors leading-snug" style={idx(1)}>
+              {cert.title}
+            </h3>
+            <div className="text-xs font-semibold text-cyan-400 mt-1" style={idx(2)}>{cert.issuer}</div>
+            <div className="text-[11px] text-slate-400 mt-0.5" style={idx(3)}>Diterbitkan: {cert.date}</div>
+            {cert.credentialId && (
+              <div className="text-[11px] text-slate-500 font-mono mt-0.5 truncate" style={idx(4)}>
+                ID: {cert.credentialId}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {cert.skills.map((skill, sIdx) => (
+            <span
+              key={sIdx}
+              className="cert-chip px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/20 text-purple-300 text-[11px]"
+              style={idx(5 + sIdx)}
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {cert.credentialUrl && (
+        <button
+          type="button"
+          onClick={() => onOpen(cert)}
+          className="cert-btn w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-cyan-300 text-xs font-semibold transition-colors"
+          style={idx(8)}
+        >
+          <Eye className="w-3.5 h-3.5" />
+          <span>Lihat Dokumen Sertifikat</span>
+        </button>
+      )}
+    </div>
+  );
+};
+
 const CertificationsSection: React.FC = () => {
   const [activeCertificate, setActiveCertificate] = useState<Certification | null>(null);
 
@@ -91,51 +191,7 @@ const CertificationsSection: React.FC = () => {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
           {certificationsData.map((cert, idx) => (
             <TiltCard key={idx} max={7}>
-            <div
-              className="h-full p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-cyan-500/40 backdrop-blur-md shadow-xl transition-all duration-300 flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400 shrink-0 group-hover:scale-110 transition-transform">
-                    <Award className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors leading-snug">
-                      {cert.title}
-                    </h3>
-                    <div className="text-xs font-semibold text-cyan-400 mt-1">{cert.issuer}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">Diterbitkan: {cert.date}</div>
-                    {cert.credentialId && (
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5 truncate">
-                        ID: {cert.credentialId}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {cert.skills.map((skill, sIdx) => (
-                    <span
-                      key={sIdx}
-                      className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/20 text-purple-300 text-[11px]"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {cert.credentialUrl && (
-                <button
-                  type="button"
-                  onClick={() => setActiveCertificate(cert)}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-cyan-300 text-xs font-semibold transition-all"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Lihat Dokumen Sertifikat</span>
-                </button>
-              )}
-            </div>
+              <CertCard cert={cert} index={idx} onOpen={setActiveCertificate} />
             </TiltCard>
           ))}
         </div>

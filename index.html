@@ -203,7 +203,105 @@
         animation: borderFlow 6s linear infinite;
       }
 
+      /* ===== CERTIFICATE CARDS ===== */
+      .cert-card {
+        position: relative; isolation: isolate; overflow: hidden;
+        --mx: 50%; --my: 50%;
+        transition: border-color .4s, box-shadow .4s;
+      }
+      /* spotlight following cursor */
+      .cert-card::before {
+        content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+        background: radial-gradient(380px circle at var(--mx) var(--my), rgba(34,211,238,.16), rgba(139,92,246,.08) 40%, transparent 70%);
+        opacity: 0; transition: opacity .4s;
+      }
+      .cert-card:hover::before { opacity: 1; }
+      /* rotating gradient border, visible on hover */
+      .cert-card::after {
+        content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; z-index: 2; pointer-events: none;
+        background: conic-gradient(from var(--angle), transparent 0deg, #22d3ee 70deg, #8b5cf6 140deg, transparent 220deg, transparent 360deg);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        opacity: 0; transition: opacity .5s;
+        animation: borderFlow 4s linear infinite;
+      }
+      .cert-card:hover::after { opacity: 1; }
+      .cert-card > * { position: relative; z-index: 1; }
+      /* diagonal shine sweep */
+      .cert-shine {
+        position: absolute !important; inset: 0; z-index: 3 !important; pointer-events: none;
+        background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.14) 50%, transparent 65%);
+        transform: translateX(-120%);
+      }
+      .cert-card:hover .cert-shine { transform: translateX(120%); transition: transform .9s cubic-bezier(.2,.7,.2,1); }
+      /* big index number watermark */
+      .cert-index {
+        position: absolute !important; right: 14px; top: 2px; z-index: 0 !important;
+        font: 800 4.5rem/1 ui-monospace, monospace; color: transparent;
+        -webkit-text-stroke: 1px rgba(148,163,184,.14);
+        transition: -webkit-text-stroke-color .4s, transform .6s cubic-bezier(.2,.8,.2,1);
+        pointer-events: none; user-select: none;
+      }
+      .cert-card:hover .cert-index { -webkit-text-stroke-color: rgba(34,211,238,.45); transform: translateY(6px) scale(1.08); }
+      /* medal icon with orbiting ring */
+      .cert-medal { position: relative; }
+      .cert-medal::before {
+        content: ''; position: absolute; inset: -5px; border-radius: 16px; z-index: -1;
+        background: conic-gradient(from var(--angle), transparent, rgba(168,85,247,.9), transparent 55%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude; padding: 1.5px;
+        animation: borderFlow 3s linear infinite; opacity: .55;
+      }
+      .cert-card:hover .cert-medal { animation: medalPop .7s cubic-bezier(.2,1.4,.3,1); box-shadow: 0 0 28px rgba(168,85,247,.55); }
+      .cert-card:hover .cert-medal svg { animation: medalWiggle .8s ease; }
+      @keyframes medalPop { 0% { transform: scale(1) rotate(0); } 50% { transform: scale(1.25) rotate(-12deg); } 100% { transform: scale(1.1) rotate(0); } }
+      @keyframes medalWiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(14deg); } 60% { transform: rotate(-10deg); } }
+      /* skill chips pop in one after another */
+      .cert-chip { transition: transform .35s cubic-bezier(.2,1.4,.3,1), background-color .3s, border-color .3s, color .3s; transition-delay: calc(var(--i) * 45ms); }
+      .cert-card:hover .cert-chip { transform: translateY(-3px); border-color: rgba(34,211,238,.45); color: #a5f3fc; background-color: rgba(8,145,178,.2); }
+      /* view button */
+      .cert-btn { position: relative; overflow: hidden; }
+      .cert-btn::before {
+        content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,182,212,.0), rgba(6,182,212,.25), rgba(139,92,246,.25));
+        transform: translateX(-101%); transition: transform .5s cubic-bezier(.2,.8,.2,1);
+      }
+      .cert-btn:hover::before { transform: translateX(0); }
+      .cert-btn > * { position: relative; }
+      .cert-btn svg { transition: transform .4s cubic-bezier(.2,1.4,.3,1); }
+      .cert-btn:hover svg { transform: scale(1.3) rotate(-8deg); }
+      /* entrance for inner content when card is scrolled in */
+      @keyframes certRise { from { opacity: 0; transform: translateY(14px) scale(.9); } to { opacity: 1; transform: none; } }
+      .cert-in .cert-medal, .cert-in .cert-text > *, .cert-in .cert-chip, .cert-in .cert-btn {
+        animation: certRise .6s cubic-bezier(.2,.9,.3,1) backwards; animation-delay: calc(120ms + var(--i, 0) * 70ms);
+      }
+      .cert-pre .cert-medal, .cert-pre .cert-text > *, .cert-pre .cert-chip, .cert-pre .cert-btn { opacity: 0; }
+
+      /* media (project cover / paper preview) */
+      .cert-media { overflow: hidden; }
+      .cert-media img { transition: transform .8s cubic-bezier(.2,.8,.2,1), filter .6s; }
+      .cert-card:hover .cert-media img { transform: scale(1.1) rotate(.6deg); filter: saturate(1.15) brightness(1.05); }
+      @keyframes mediaReveal { from { clip-path: inset(0 100% 0 0); transform: scale(1.15); } to { clip-path: inset(0 0 0 0); transform: none; } }
+      .cert-in .cert-media { animation: mediaReveal .9s cubic-bezier(.7,0,.2,1) backwards; }
+      .cert-pre .cert-media { opacity: 0; }
+      /* pulsing status dot */
+      @keyframes dotPing { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.6); } 100% { box-shadow: 0 0 0 8px rgba(52,211,153,0); } }
+      .status-dot { width: 6px; height: 6px; border-radius: 9999px; background: #34d399; animation: dotPing 1.8s infinite; display: inline-block; }
+      /* publication paper preview floats on hover */
+      .cert-card:hover .pub-preview { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 18px 40px -12px rgba(34,211,238,.35); }
+      .pub-preview { transition: transform .5s cubic-bezier(.2,1.2,.3,1), box-shadow .5s; }
+      /* tag slides in project cover */
+      .cert-card .cert-tag { transition: transform .4s cubic-bezier(.2,1.4,.3,1); }
+      .cert-card:hover .cert-tag { transform: translateY(2px) scale(1.06); }
+      .cert-in .cert-text > *, .cert-in .cert-tag { animation-fill-mode: backwards; }
+      .cert-pre .cert-tag { opacity: 0; }
+      .cert-in .cert-tag { animation: certRise .6s cubic-bezier(.2,.9,.3,1) backwards; animation-delay: 300ms; }
+
       @media (prefers-reduced-motion: reduce) {
+        .cert-pre .cert-media, .cert-pre .cert-tag { opacity: 1; }
+        .status-dot { animation: none; }
+        .cert-card::after, .cert-medal::before { animation: none; }
+        .cert-in *, .cert-card:hover * { animation: none !important; }
+        .cert-pre .cert-medal, .cert-pre .cert-text > *, .cert-pre .cert-chip, .cert-pre .cert-btn { opacity: 1; }
         .orbit-spin, .orbit-spin-reverse, .border-flow::after, .animate-float-slow, .animate-pulse-glow { animation: none; }
         .tilt-card-inner { transition: none; }
       }

@@ -1,5 +1,6 @@
 import React from 'react';
 import TiltCard from './TiltCard';
+import { useCardFx, stagger } from './useCardFx';
 import type { Publication } from '../types';
 import { BookOpen, ExternalLink, Award, FileText } from 'lucide-react';
 
@@ -28,6 +29,76 @@ const publicationsData: Publication[] = [
   },
 ];
 
+const PublicationCard: React.FC<{ pub: Publication }> = ({ pub }) => {
+  const { ref, onPointerMove, phaseClass } = useCardFx();
+  return (
+    <TiltCard max={4} rounded="rounded-3xl">
+      <div
+        ref={ref}
+        onPointerMove={onPointerMove}
+        className={`cert-card h-full p-6 sm:p-8 rounded-3xl bg-slate-950/80 border border-slate-800/80 hover:border-cyan-500/40 backdrop-blur-md shadow-xl ${phaseClass}`}
+      >
+        <span className="cert-shine" aria-hidden="true" />
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="cert-media pub-preview lg:w-64 shrink-0 rounded-2xl bg-slate-900 border border-slate-800 p-3 flex items-center justify-center">
+            <img
+              src={pub.imageUrl}
+              alt={pub.title}
+              className="max-h-44 object-contain rounded-xl"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+
+          <div className="cert-text flex-1 space-y-3">
+            <div className="flex flex-wrap items-center gap-2" style={stagger(0)}>
+              <span className="px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold">
+                {pub.year}
+              </span>
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                <span className="status-dot" />
+                {pub.status}
+              </span>
+            </div>
+
+            <h3 className="text-xl font-bold text-white leading-snug" style={stagger(1)}>{pub.title}</h3>
+            <div className="text-xs font-semibold text-cyan-400 font-mono" style={stagger(2)}>{pub.venue}</div>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed" style={stagger(3)}>{pub.description}</p>
+
+            <div className="flex flex-wrap gap-1.5 pt-2">
+              {pub.tags.map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  style={stagger(4 + tIdx)}
+                  className="cert-chip px-2.5 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/20 text-purple-300 text-[11px]"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+
+            {pub.url && (
+              <div className="pt-2">
+                <a
+                  href={pub.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={stagger(9)}
+                  className="cert-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Buka DOI / Link Publikasi</span>
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </TiltCard>
+  );
+};
+
 const PublicationsSection: React.FC = () => {
   return (
     <section id="publications" className="py-24 relative z-10 overflow-hidden bg-[#07090e]/25">
@@ -49,77 +120,7 @@ const PublicationsSection: React.FC = () => {
         {/* Publications Grid */}
         <div className="max-w-5xl mx-auto space-y-8">
           {publicationsData.map((pub, idx) => (
-            <TiltCard key={idx} max={4} rounded="rounded-3xl">
-            <div
-              className="h-full p-6 sm:p-8 rounded-3xl bg-slate-950/80 border border-slate-800/80 hover:border-cyan-500/40 backdrop-blur-md shadow-xl transition-all duration-300"
-            >
-              <div className="flex flex-col lg:flex-row gap-6">
-                
-                {/* Paper Image / Preview Badge */}
-                <div className="lg:w-64 shrink-0 rounded-2xl bg-slate-900 border border-slate-800 p-3 flex items-center justify-center">
-                  <img
-                    src={pub.imageUrl}
-                    alt={pub.title}
-                    className="max-h-44 object-contain rounded-xl"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-
-                {/* Content Details */}
-                <div className="flex-1 space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold">
-                      {pub.year}
-                    </span>
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
-                      {pub.status}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-white leading-snug">
-                    {pub.title}
-                  </h3>
-
-                  <div className="text-xs font-semibold text-cyan-400 font-mono">
-                    {pub.venue}
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    {pub.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {pub.tags.map((tag, tIdx) => (
-                      <span
-                        key={tIdx}
-                        className="px-2.5 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/20 text-purple-300 text-[11px]"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {pub.url && (
-                    <div className="pt-2">
-                      <a
-                        href={pub.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold transition-all"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Buka DOI / Link Publikasi</span>
-                      </a>
-                    </div>
-                  )}
-
-                </div>
-
-              </div>
-            </div>
-            </TiltCard>
+            <PublicationCard key={idx} pub={pub} />
           ))}
         </div>
 
