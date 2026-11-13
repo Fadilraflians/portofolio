@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import TiltCard from './TiltCard';
 import type { Certification } from '../types';
 import { Award, Eye, X, CheckCircle2 } from 'lucide-react';
@@ -199,7 +200,7 @@ const CertificationsSection: React.FC = () => {
       </div>
 
       {/* Lightbox PDF / Document Modal */}
-      {activeCertificate?.credentialUrl && (
+      {activeCertificate?.credentialUrl && createPortal(
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in-up"
           onClick={() => setActiveCertificate(null)}
@@ -228,7 +229,8 @@ const CertificationsSection: React.FC = () => {
               className="w-full h-[calc(85vh-3.5rem)] bg-white"
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );

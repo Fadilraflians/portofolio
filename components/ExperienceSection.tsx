@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Experience } from '../types';
-import { Briefcase, Calendar, MapPin, Building, GraduationCap, Users, Award } from 'lucide-react';
+import { useCardFx, stagger } from './useCardFx';
+import { Briefcase, Calendar, MapPin, GraduationCap, Users, Code2, Landmark } from 'lucide-react';
 
 const experienceData: Experience[] = [
   {
@@ -78,11 +79,146 @@ const experienceData: Experience[] = [
   },
 ];
 
+/** Accent colour (r,g,b) + icon per kind of experience */
+const kindOf = (type: string) => {
+  const t = type.toLowerCase();
+  if (t.includes('magang')) return { rgb: '59,130,246', Icon: Landmark, label: 'Magang' };
+  if (t.includes('akademik')) return { rgb: '168,85,247', Icon: GraduationCap, label: 'Akademik' };
+  if (t.includes('organisasi')) return { rgb: '245,158,11', Icon: Users, label: 'Organisasi' };
+  if (t.includes('komunitas')) return { rgb: '16,185,129', Icon: Code2, label: 'Komunitas' };
+  return { rgb: '34,211,238', Icon: Briefcase, label: 'Pekerjaan' };
+};
+
+const XpItem: React.FC<{ exp: Experience; index: number }> = ({ exp, index }) => {
+  const { ref, onPointerMove, phaseClass } = useCardFx();
+  const isEven = index % 2 === 0;
+  const kind = kindOf(exp.type);
+  const current = /sekarang|present/i.test(exp.period);
+  const accent = { '--ac': kind.rgb } as React.CSSProperties;
+
+  return (
+    <div className="xp-row relative flex flex-col sm:flex-row items-start mb-12 last:mb-0 group" style={accent}>
+      {/* Timeline node */}
+      <div className="xp-node absolute left-4 sm:left-1/2 -translate-x-1/2 top-5 z-20" data-node>
+        {current && <span className="xp-ping" aria-hidden="true" />}
+        <div className="xp-node-core relative w-11 h-11 rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
+          {exp.logoUrl ? (
+            <img src={exp.logoUrl} alt="" className="w-7 h-7 object-contain" />
+          ) : (
+            <kind.Icon className="w-4 h-4" style={{ color: `rgb(${kind.rgb})` }} />
+          )}
+        </div>
+      </div>
+
+      {/* Connector arm to card (desktop) */}
+      <span
+        className={`xp-arm hidden sm:block absolute top-[2.35rem] h-px w-8 ${isEven ? 'right-1/2 mr-5' : 'left-1/2 ml-5'}`}
+        aria-hidden="true"
+      />
+
+      <div className={`w-full sm:w-1/2 pl-14 sm:pl-0 ${isEven ? 'sm:pr-14' : 'sm:pl-14 sm:ml-auto'}`}>
+        <div
+          ref={ref}
+          onPointerMove={onPointerMove}
+          className={`cert-card xp-card p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 backdrop-blur-md shadow-xl ${phaseClass}`}
+        >
+          <span className="cert-shine" aria-hidden="true" />
+          <span className="xp-bar" aria-hidden="true" />
+
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-4" style={stagger(0)}>
+            <span className="xp-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider">
+              <kind.Icon className="w-3 h-3" />
+              {kind.label}
+            </span>
+            {current && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold">
+                <span className="status-dot" /> Sedang berjalan
+              </span>
+            )}
+          </div>
+
+          <div className="cert-text">
+            <h3 className="text-lg sm:text-xl font-bold text-white leading-snug transition-colors group-hover:text-cyan-300" style={stagger(1)}>
+              {exp.title}
+            </h3>
+            <div className="text-sm font-semibold mt-1" style={{ ...stagger(2), color: `rgb(${kind.rgb})` }}>
+              {exp.company}
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-slate-400 mt-3 mb-4" style={stagger(3)}>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">
+                <Calendar className="w-3 h-3" style={{ color: `rgb(${kind.rgb})` }} /> {exp.period}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">
+                <MapPin className="w-3 h-3" style={{ color: `rgb(${kind.rgb})` }} /> {exp.location}
+              </span>
+            </div>
+          </div>
+
+          {exp.highlights.length > 0 && (
+            <ul className="space-y-2.5 mb-5 text-xs sm:text-sm text-slate-300">
+              {exp.highlights.map((item, i) => (
+                <li key={i} className="xp-li flex items-start gap-2.5 leading-relaxed" style={stagger(4 + i)}>
+                  <span className="xp-bullet shrink-0 mt-[7px]" aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex flex-wrap gap-1.5">
+            {exp.skills.map((skill, sIdx) => (
+              <span
+                key={sIdx}
+                style={stagger(8 + sIdx)}
+                className="cert-chip xp-chip px-2.5 py-0.5 rounded-md text-[11px] font-medium"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ExperienceSection: React.FC = () => {
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  // Fill the centre line with scroll progress and light up nodes it has passed
+  useEffect(() => {
+    const el = timelineRef.current;
+    if (!el) return;
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      const rect = el.getBoundingClientRect();
+      const focus = window.innerHeight * 0.55;
+      const progress = Math.min(1, Math.max(0, (focus - rect.top) / rect.height));
+      el.style.setProperty('--p', String(progress));
+      el.querySelectorAll<HTMLElement>('[data-node]').forEach((n) => {
+        n.dataset.lit = n.getBoundingClientRect().top + 20 < focus ? '1' : '0';
+      });
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, []);
+
   return (
     <section id="experience" className="py-24 relative z-10 overflow-hidden bg-[#07090e]/25">
       <div className="container mx-auto px-4 sm:px-6 xl:px-12">
-        
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
           <span className="text-xs font-semibold uppercase tracking-widest text-cyan-400 font-mono">
@@ -94,81 +230,15 @@ const ExperienceSection: React.FC = () => {
           <div className="w-16 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 mx-auto rounded-full"></div>
         </div>
 
-        {/* Timeline List */}
-        <div className="max-w-4xl mx-auto relative before:absolute before:left-4 sm:before:left-1/2 before:-translate-x-1/2 before:top-0 before:bottom-0 before:w-0.5 before:bg-gradient-to-b before:from-cyan-500/80 before:via-blue-500/40 before:to-transparent">
-          {experienceData.map((exp, index) => {
-            const isEven = index % 2 === 0;
-            return (
-              <div
-                key={index}
-                className="relative flex flex-col sm:flex-row items-start mb-12 group"
-              >
-                {/* Timeline Center Dot Indicator */}
-                <div className="absolute left-4 sm:left-1/2 -translate-x-1/2 top-0 z-20 w-8 h-8 rounded-full bg-slate-950 border-2 border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/30 group-hover:scale-110 group-hover:border-cyan-300 transition-all">
-                  <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
-                </div>
-
-                {/* Content Card Container */}
-                <div className={`w-full sm:w-1/2 pl-12 sm:pl-0 ${isEven ? 'sm:pr-10 sm:text-right' : 'sm:pl-10 sm:ml-auto'}`}>
-                  <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-cyan-500/40 backdrop-blur-md shadow-xl transition-all duration-300 group-hover:translate-y-[-2px]">
-                    
-                    {/* Header info */}
-                    <div className={`flex items-center gap-3 mb-3 ${isEven ? 'sm:justify-end' : 'justify-start'}`}>
-                      {exp.logoUrl && (
-                        <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700/60 p-1 flex items-center justify-center shrink-0">
-                          <img src={exp.logoUrl} alt={exp.company} className="w-full h-full object-contain" />
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">
-                          {exp.title}
-                        </h3>
-                        <div className="text-xs font-semibold text-cyan-400">{exp.company}</div>
-                      </div>
-                    </div>
-
-                    {/* Metadata line */}
-                    <div className={`flex flex-wrap gap-2 text-xs text-slate-400 mb-4 ${isEven ? 'sm:justify-end' : 'justify-start'}`}>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800">
-                        <Calendar className="w-3 h-3 text-cyan-400" /> {exp.period}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800">
-                        <MapPin className="w-3 h-3 text-cyan-400" /> {exp.location}
-                      </span>
-                    </div>
-
-                    {/* Highlights bullet list */}
-                    {exp.highlights.length > 0 && (
-                      <ul className="space-y-2 mb-4 text-xs sm:text-sm text-slate-300 text-left">
-                        {exp.highlights.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-cyan-400 font-bold shrink-0">›</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {/* Skills pills */}
-                    <div className={`flex flex-wrap gap-1.5 ${isEven ? 'sm:justify-end' : 'justify-start'}`}>
-                      {exp.skills.map((skill, sIdx) => (
-                        <span
-                          key={sIdx}
-                          className="px-2.5 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/20 text-cyan-300 text-[11px] font-medium"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-
-                  </div>
-                </div>
-
-              </div>
-            );
-          })}
+        {/* Timeline */}
+        <div ref={timelineRef} className="xp-timeline max-w-5xl mx-auto relative">
+          <div className="xp-track absolute left-4 sm:left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5" aria-hidden="true">
+            <div className="xp-fill" />
+          </div>
+          {experienceData.map((exp, index) => (
+            <XpItem key={index} exp={exp} index={index} />
+          ))}
         </div>
-
       </div>
     </section>
   );
