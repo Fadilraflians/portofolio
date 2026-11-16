@@ -1,6 +1,19 @@
 import React from 'react';
 import TiltCard from './TiltCard';
 import HalftoneReveal from './HalftoneReveal';
+import Float3D from './Float3D';
+
+// floating sparks in front of the figure (pulled forward in depth by Float3D)
+const SPARKS = [
+  { x: '8%', y: '18%', size: 3, color: '#67e8f9', dur: 3.2, delay: 0 },
+  { x: '88%', y: '12%', size: 2, color: '#ffffff', dur: 4.1, delay: 1.1 },
+  { x: '93%', y: '38%', size: 4, color: '#a78bfa', dur: 3.7, delay: 0.6 },
+  { x: '3%', y: '47%', size: 2, color: '#ffffff', dur: 4.6, delay: 2.0 },
+  { x: '14%', y: '72%', size: 3, color: '#67e8f9', dur: 3.4, delay: 1.5 },
+  { x: '84%', y: '66%', size: 3, color: '#67e8f9', dur: 3.9, delay: 0.3 },
+  { x: '72%', y: '86%', size: 2, color: '#ffffff', dur: 4.3, delay: 2.4 },
+  { x: '26%', y: '90%', size: 2, color: '#a78bfa', dur: 3.6, delay: 0.9 },
+];
 import { User, Code, Award, Building2, MousePointerClick } from 'lucide-react';
 
 const stats = [
@@ -86,17 +99,50 @@ const AboutSection: React.FC = () => {
 
           {/* Right Column — Halftone reveal: Fadil first, Iron Man under the cursor */}
           <div className="lg:col-span-5 order-first lg:order-none flex flex-col items-center">
-            <div className="relative w-full max-w-[300px] sm:max-w-[340px]">
-              {/* ambient glow behind the figure — static on purpose (an animated blur repaints every frame) */}
+            <Float3D
+              className="w-full max-w-[300px] sm:max-w-[340px] aspect-[868/1550]"
+              max={12}
+              back={
+                <>
+                  {/* ambient glow, pushed back in depth so it parallaxes against the figure */}
+                  <div
+                    className="absolute inset-x-[-25%] top-[2%] bottom-[18%]"
+                    style={{
+                      background:
+                        'radial-gradient(closest-side, rgba(34,211,238,0.2), rgba(59,130,246,0.1) 55%, transparent 100%)',
+                      opacity: 'calc(0.85 + var(--lift, 0) * 0.15)',
+                    }}
+                  />
+                  {/* thin energy halo behind the torso */}
+                  <div
+                    className="absolute left-1/2 top-[16%] w-[78%] aspect-square -translate-x-1/2 rounded-full border border-cyan-300/15"
+                    style={{ boxShadow: '0 0 40px rgba(34,211,238,0.12), inset 0 0 40px rgba(34,211,238,0.08)' }}
+                  />
+                </>
+              }
+              front={
+                <>
+                  {SPARKS.map((s, i) => (
+                    <span
+                      key={i}
+                      className="absolute rounded-full animate-pulse-glow"
+                      style={{
+                        left: s.x,
+                        top: s.y,
+                        width: s.size,
+                        height: s.size,
+                        background: s.color,
+                        boxShadow: `0 0 ${s.size * 3}px ${s.color}`,
+                        animationDuration: `${s.dur}s`,
+                        animationDelay: `${s.delay}s`,
+                      }}
+                    />
+                  ))}
+                </>
+              }
+            >
               <div
-                className="absolute inset-x-[-20%] top-[5%] bottom-[20%] -z-10 pointer-events-none"
-                style={{
-                  background:
-                    'radial-gradient(closest-side, rgba(34,211,238,0.18), rgba(59,130,246,0.09) 55%, transparent 100%)',
-                }}
-              />
-              <div
-                className="relative aspect-[868/1550] cursor-crosshair"
+                className="relative w-full h-full cursor-crosshair"
                 role="img"
                 aria-label="Fadil Rafliansyah — arahkan kursor untuk melihat armor Iron Man"
               >
@@ -115,7 +161,7 @@ const AboutSection: React.FC = () => {
                   style={{ touchAction: 'pan-y' }}
                 />
               </div>
-            </div>
+            </Float3D>
 
             <div className="mt-2 text-center space-y-1">
               <div className="font-bold text-white text-lg">Fadil Rafliansyah, S.Kom</div>

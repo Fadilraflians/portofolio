@@ -115,7 +115,8 @@ void main() {
   float delay = length(field) * 1.15 + hash(floor(p / uCell)) * 0.06;
   float grow = smoothstep(0.0, 1.0, clamp((uIntro * 1.7 - delay) / 0.45, 0.0, 1.0));
   vec4 base = layer(uImage, uFrame, p);
-  float baseAlpha = base.a * dot2(d, FULL * grow, w);
+  // once grown, the photo is shown whole — no leftover dot grid on the resting image
+  float baseAlpha = base.a * max(dot2(d, FULL * grow, w), smoothstep(0.55, 1.0, grow));
   vec4 under = vec4(base.rgb * baseAlpha, baseAlpha);
 
   // reveal: dots fade in at the edge, the core melts into a seamless crossfade
@@ -529,9 +530,16 @@ const HalftoneReveal = ({
     });
 
     const locatePointer = (event: PointerEvent) => {
-      const rect = container.getBoundingClientRect();
-      pointer.x = event.clientX - rect.left;
-      pointer.y = event.clientY - rect.top;
+      if (event.target === canvas) {
+        // offsetX/Y are in the canvas' own (untransformed) space, so the reveal stays
+        // under the cursor even when a parent rotates/floats the element in 3D
+        pointer.x = event.offsetX;
+        pointer.y = event.offsetY;
+      } else {
+        const rect = container.getBoundingClientRect();
+        pointer.x = event.clientX - rect.left;
+        pointer.y = event.clientY - rect.top;
+      }
       pointer.placed = true;
     };
     const onMove = (event: PointerEvent) => {

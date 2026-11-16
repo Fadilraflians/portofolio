@@ -7,6 +7,104 @@
     <title>Fadil Rafliansyah | Web Developer & Machine Learning Specialist</title>
     <meta name="description" content="Portofolio Fadil Rafliansyah - Fresh Graduate S1 Informatika Telkom University (IPK 3.66/4.00) spesialisasi Web Development, Machine Learning, dan Computer Vision." />
     
+    <!-- Preloader styles: inline and first, so the loading screen paints before anything else -->
+    <style>
+      html.is-loading, html.is-loading body { overflow: hidden; }
+      #preloader {
+        --pl-cyan: #22d3ee;
+        --pl-blue: #3b82f6;
+        position: fixed; inset: 0; z-index: 9999;
+        display: grid; place-items: center;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        color: #e2e8f0;
+        /* failsafe: never block the site if the script below fails */
+        animation: plFailsafe 0s 12s forwards;
+      }
+      .pl-door {
+        position: absolute; left: 0; right: 0; height: 50.5%;
+        background:
+          radial-gradient(ellipse 60% 70% at 50% 100%, rgba(34, 211, 238, 0.10), transparent 70%),
+          linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px) 0 0 / 44px 44px,
+          linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px) 0 0 / 44px 44px,
+          #07090e;
+        transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+      }
+      .pl-door-top { top: 0; }
+      .pl-door-bottom { bottom: 0; background:
+          radial-gradient(ellipse 60% 70% at 50% 0%, rgba(34, 211, 238, 0.10), transparent 70%),
+          linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px) 0 0 / 44px 44px,
+          linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px) 0 0 / 44px 44px,
+          #07090e; }
+      .pl-seam {
+        position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px;
+        background: linear-gradient(90deg, transparent, var(--pl-cyan) 30%, #fff 50%, var(--pl-cyan) 70%, transparent);
+        box-shadow: 0 0 18px var(--pl-cyan), 0 0 42px rgba(34, 211, 238, 0.6);
+        transform: scaleX(0); opacity: 0;
+        transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.45s ease;
+      }
+      .pl-content {
+        position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px;
+        padding: 0 16px; text-align: center;
+        transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+      }
+      .pl-reactor { position: relative; width: clamp(150px, 38vw, 190px); aspect-ratio: 1; }
+      .pl-reactor svg { width: 100%; height: 100%; overflow: visible; }
+      .pl-reactor circle { fill: none; }
+      .pl-track { stroke: rgba(148, 163, 184, 0.12); stroke-width: 3; }
+      .pl-progress {
+        stroke: url(#plGrad); stroke-width: 3.5; stroke-linecap: round;
+        stroke-dasharray: 552.92; stroke-dashoffset: 552.92;
+        transform: rotate(-90deg); transform-origin: 100px 100px;
+        filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.8));
+      }
+      .pl-ring-a { stroke: rgba(34, 211, 238, 0.55); stroke-width: 6; stroke-dasharray: 14 9; }
+      .pl-ring-b { stroke: rgba(129, 140, 248, 0.5); stroke-width: 2; stroke-dasharray: 2 7; }
+      .pl-spin { transform-origin: 100px 100px; animation: plSpin 6s linear infinite; }
+      .pl-spin-rev { transform-origin: 100px 100px; animation: plSpin 9s linear infinite reverse; }
+      .pl-core {
+        position: absolute; inset: 31%; border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(165, 243, 252, 0.75) 22%, rgba(34, 211, 238, 0.28) 52%, transparent 72%);
+        animation: plPulse 1.8s ease-in-out infinite;
+      }
+      .pl-percent {
+        position: absolute; inset: 0; display: grid; place-items: center;
+        font-family: 'Fira Code', ui-monospace, monospace; font-weight: 600;
+        font-size: clamp(22px, 5.5vw, 28px); color: #04121a; letter-spacing: -0.02em;
+      }
+      .pl-percent small { font-size: 0.55em; margin-left: 1px; opacity: 0.8; }
+      .pl-name { font-weight: 800; font-size: clamp(18px, 4.6vw, 24px); letter-spacing: 0.32em; padding-left: 0.32em; color: #fff; }
+      .pl-name span {
+        background: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #06b6d4 100%);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      }
+      .pl-status {
+        min-height: 1.4em; font-family: 'Fira Code', ui-monospace, monospace; font-size: 12px;
+        letter-spacing: 0.18em; text-transform: uppercase; color: rgba(148, 163, 184, 0.85);
+      }
+      .pl-status::before { content: '> '; color: var(--pl-cyan); }
+      .pl-bar { width: min(260px, 70vw); height: 2px; border-radius: 2px; background: rgba(148, 163, 184, 0.14); overflow: hidden; }
+      .pl-bar i {
+        display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left;
+        background: linear-gradient(90deg, var(--pl-blue), var(--pl-cyan));
+        box-shadow: 0 0 10px var(--pl-cyan);
+      }
+
+      /* exit: content dims, the seam lights up, then the doors part */
+      #preloader.pl-exit .pl-content { opacity: 0; transform: scale(0.92); }
+      #preloader.pl-exit .pl-seam { opacity: 1; transform: scaleX(1); }
+      #preloader.pl-open .pl-seam { opacity: 0; transition-duration: 0.3s; }
+      #preloader.pl-open .pl-door-top { transform: translateY(-101%); }
+      #preloader.pl-open .pl-door-bottom { transform: translateY(101%); }
+
+      @keyframes plSpin { to { transform: rotate(360deg); } }
+      @keyframes plPulse { 0%, 100% { opacity: 0.85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+      @keyframes plFailsafe { to { visibility: hidden; opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .pl-spin, .pl-spin-rev, .pl-core { animation: none; }
+        .pl-door, .pl-content, .pl-seam { transition-duration: 0.01s; }
+      }
+    </style>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -368,6 +466,116 @@
     </style>
   </head>
   <body>
+    <!-- Loading screen (plain HTML so it shows before the app bundle loads) -->
+    <div id="preloader" role="status" aria-live="polite" aria-label="Memuat portofolio">
+      <div class="pl-door pl-door-top"></div>
+      <div class="pl-door pl-door-bottom"></div>
+      <div class="pl-seam"></div>
+      <div class="pl-content">
+        <div class="pl-reactor">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <linearGradient id="plGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#22d3ee" />
+              </linearGradient>
+            </defs>
+            <circle class="pl-track" cx="100" cy="100" r="88" />
+            <circle class="pl-progress" id="pl-ring" cx="100" cy="100" r="88" />
+            <g class="pl-spin"><circle class="pl-ring-a" cx="100" cy="100" r="72" /></g>
+            <g class="pl-spin-rev"><circle class="pl-ring-b" cx="100" cy="100" r="60" /></g>
+          </svg>
+          <div class="pl-core"></div>
+          <div class="pl-percent"><span><span id="pl-num">0</span><small>%</small></span></div>
+        </div>
+        <div class="pl-name">FADIL <span>RAFLIANSYAH</span></div>
+        <div class="pl-bar"><i id="pl-bar"></i></div>
+        <div class="pl-status" id="pl-status">Initializing systems</div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var el = document.getElementById('preloader');
+        if (!el) return;
+        var root = document.documentElement;
+        var num = document.getElementById('pl-num');
+        var ring = document.getElementById('pl-ring');
+        var bar = document.getElementById('pl-bar');
+        var status = document.getElementById('pl-status');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var CIRC = 552.92;
+        var MIN = reduce ? 300 : 1900;   // let the animation be seen
+        var MAX = 9000;                  // never hold the site hostage
+        var start = performance.now();
+        var total = 0, done = 0;
+        var steps = [
+          [0, 'Initializing systems'],
+          [0.25, 'Loading assets'],
+          [0.55, 'Calibrating reactor'],
+          [0.85, 'Suiting up'],
+          [1, 'System ready']
+        ];
+        root.classList.add('is-loading');
+
+        function track(promise) {
+          total++;
+          var settle = function () { done++; };
+          promise.then(settle, settle);
+        }
+        // the heavy images the first screens need (same CORS mode as the app, so the cache is reused)
+        ['/fadil-photo.png', '/fadil-flight.webp', '/ironman-suit.webp'].forEach(function (src) {
+          track(new Promise(function (resolve) {
+            var img = new Image();
+            if (src.indexOf('.webp') > 0) img.crossOrigin = 'anonymous';
+            img.onload = img.onerror = resolve;
+            img.src = src;
+          }));
+        });
+        if (document.fonts && document.fonts.ready) track(document.fonts.ready);
+        track(new Promise(function (resolve) {
+          if (document.readyState === 'complete') resolve();
+          else window.addEventListener('load', resolve, { once: true });
+        }));
+
+        var shown = 0, label = '';
+        function frame(now) {
+          var t = now - start;
+          var target = Math.min(done / total, t / MIN);
+          if (t > MAX) target = 1;
+          shown += (target - shown) * 0.09;
+          if (target - shown < 0.003) shown = target;
+          var pct = Math.round(shown * 100);
+          num.textContent = pct;
+          ring.style.strokeDashoffset = CIRC * (1 - shown);
+          bar.style.transform = 'scaleX(' + shown + ')';
+          for (var i = steps.length - 1; i >= 0; i--) {
+            if (shown >= steps[i][0]) {
+              if (label !== steps[i][1]) { label = steps[i][1]; status.textContent = label; }
+              break;
+            }
+          }
+          if (shown >= 1) setTimeout(leave, reduce ? 0 : 280);
+          else requestAnimationFrame(frame);
+        }
+
+        var left = false;
+        function leave() {
+          if (left) return;
+          left = true;
+          el.classList.add('pl-exit');
+          setTimeout(function () {
+            el.classList.add('pl-open');
+            root.classList.remove('is-loading');
+            window.dispatchEvent(new Event('portfolio:ready'));
+          }, reduce ? 0 : 450);
+          setTimeout(function () { el.remove(); }, reduce ? 50 : 1450);
+        }
+
+        requestAnimationFrame(frame);
+        // backup: even if something above throws, unlock the page
+        setTimeout(leave, MAX + 1500);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
