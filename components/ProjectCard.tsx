@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Project } from '../types';
-import { ExternalLink, Github, FileText, Info } from 'lucide-react';
+import { Github, Info } from 'lucide-react';
 import TiltCard from './TiltCard';
 import { useCardFx, stagger } from './useCardFx';
 

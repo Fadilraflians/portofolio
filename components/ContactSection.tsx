@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { SocialLink } from '../types';
-import { Mail, MessageCircle, Github, Linkedin, Send, CheckCircle2, Sparkles, MapPin, Phone, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, MessageCircle, Github, Linkedin, Send, CheckCircle2, Sparkles, MapPin, Loader2, AlertCircle } from 'lucide-react';
 
 const socialLinks: SocialLink[] = [
   { name: 'GitHub', url: 'https://github.com/fadilrafliansyah', icon: Github },

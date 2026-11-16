@@ -1,6 +1,7 @@
 import React from 'react';
 import TiltCard from './TiltCard';
-import { User, Code, Award, BookOpen, Building2, ChevronRight } from 'lucide-react';
+import HalftoneReveal from './HalftoneReveal';
+import { User, Code, Award, Building2, MousePointerClick } from 'lucide-react';
 
 const stats = [
   { value: '3.66', label: 'IPK / GPA (Cum Laude)', sub: 'Telkom University', color: 'text-cyan-400' },
@@ -46,34 +47,7 @@ const AboutSection: React.FC = () => {
         {/* 2-Column Content */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-6xl mx-auto">
           
-          {/* Left Column Photo & Highlights */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-sm">
-              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-purple-500/20 rounded-3xl blur-2xl -z-10"></div>
-              
-              <TiltCard max={12} rounded="rounded-3xl">
-              <div className="p-3 rounded-3xl bg-slate-950/80 border border-slate-800 shadow-2xl relative overflow-hidden group">
-                <div className="h-[400px] rounded-2xl overflow-hidden relative">
-                  <img
-                    src="/fadil-photo.png"
-                    alt="Fadil Rafliansyah"
-                    className="w-full h-full object-cover object-[center_top] group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/profile.jpg';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-slate-900/80 backdrop-blur-md border border-slate-800">
-                    <div className="font-bold text-white text-base">Fadil Rafliansyah, S.Kom</div>
-                    <div className="text-xs text-cyan-400">S1 Informatika Telkom University</div>
-                  </div>
-                </div>
-              </div>
-              </TiltCard>
-            </div>
-          </div>
-
-          {/* Right Column Bio & Cards */}
+          {/* Left Column — Bio & Highlights */}
           <div className="lg:col-span-7 space-y-6">
             <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800/80 backdrop-blur-md space-y-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -107,6 +81,49 @@ const AboutSection: React.FC = () => {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Right Column — Halftone reveal: Fadil first, Iron Man under the cursor */}
+          <div className="lg:col-span-5 order-first lg:order-none flex flex-col items-center">
+            <div className="relative w-full max-w-[300px] sm:max-w-[340px]">
+              {/* ambient glow behind the figure — static on purpose (an animated blur repaints every frame) */}
+              <div
+                className="absolute inset-x-[-20%] top-[5%] bottom-[20%] -z-10 pointer-events-none"
+                style={{
+                  background:
+                    'radial-gradient(closest-side, rgba(34,211,238,0.18), rgba(59,130,246,0.09) 55%, transparent 100%)',
+                }}
+              />
+              <div
+                className="relative aspect-[868/1550] cursor-crosshair"
+                role="img"
+                aria-label="Fadil Rafliansyah — arahkan kursor untuk melihat armor Iron Man"
+              >
+                <HalftoneReveal
+                  src="/fadil-flight.webp"
+                  revealSrc="/ironman-suit.webp"
+                  fit="contain"
+                  cellSize={5}
+                  angle={45}
+                  revealRadius={120}
+                  softness={0.9}
+                  linger={1.8}
+                  smoothing={0.06}
+                  clickBurst
+                  intro
+                  style={{ touchAction: 'pan-y' }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-2 text-center space-y-1">
+              <div className="font-bold text-white text-lg">Fadil Rafliansyah, S.Kom</div>
+              <div className="text-xs text-cyan-400">S1 Informatika Telkom University</div>
+              <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] font-mono uppercase tracking-widest text-slate-500">
+                <MousePointerClick className="w-3.5 h-3.5" />
+                <span>Hover / klik untuk suit up</span>
+              </div>
             </div>
           </div>
 

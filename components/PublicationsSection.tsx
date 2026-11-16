@@ -2,7 +2,7 @@ import React from 'react';
 import TiltCard from './TiltCard';
 import { useCardFx, stagger } from './useCardFx';
 import type { Publication } from '../types';
-import { BookOpen, ExternalLink, Award, FileText } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 const publicationsData: Publication[] = [
   {

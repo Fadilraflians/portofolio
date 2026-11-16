@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import TiltCard from './TiltCard';
 import type { Certification } from '../types';
-import { Award, Eye, X, CheckCircle2 } from 'lucide-react';
+import { Award, Eye, X } from 'lucide-react';
 
 const certificationsData: Certification[] = [
   {
@@ -53,7 +53,7 @@ const certificationsData: Certification[] = [
   },
 ];
 
-const CertCard: React.FC<{ cert: Certification; index: number; onOpen: (c: Certification) => void }> = ({ cert, index, onOpen }) => {
+const CertCard: React.FC<{ cert: Certification; onOpen: (c: Certification) => void }> = ({ cert, onOpen }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<'pre' | 'in' | 'done'>('pre');
 
@@ -192,7 +192,7 @@ const CertificationsSection: React.FC = () => {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
           {certificationsData.map((cert, idx) => (
             <TiltCard key={idx} max={7}>
-              <CertCard cert={cert} index={idx} onOpen={setActiveCertificate} />
+              <CertCard cert={cert} onOpen={setActiveCertificate} />
             </TiltCard>
           ))}
         </div>
