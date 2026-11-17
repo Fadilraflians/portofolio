@@ -1,0 +1,481 @@
+/* =====================================================================
+   CertFolder — purple file folder with real certificate previews,
+   paper label + verified stamp; opens into a fan of certificate cards.
+   ===================================================================== */
+
+.cf-root {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+}
+
+/* ── Folder ─────────────────────────────────────────────────────────── */
+.cf-folder {
+  position: relative;
+  width: 360px;
+  height: 320px;
+  cursor: pointer;
+  outline: none;
+  perspective: 900px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cf-back {
+  position: absolute;
+  inset: 26px 0 0 0;
+  border-radius: 28px;
+  background: linear-gradient(165deg, #5b45d6 0%, #4632bd 55%, #38289b 100%);
+  box-shadow:
+    0 30px 70px -10px rgba(76, 52, 214, 0.55),
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 0.45s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.45s ease;
+}
+
+.cf-tab {
+  position: absolute;
+  top: 0;
+  left: 62px;
+  height: 54px;
+  padding: 0 28px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(180deg, #6550e0 0%, #5b45d6 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  line-height: 46px;
+  transition: transform 0.45s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+/* real certificate previews */
+.cf-papers {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 48px;
+  height: 170px;
+  z-index: 2;
+  pointer-events: none;
+}
+.cf-paper {
+  position: absolute;
+  width: 58%;
+  aspect-ratio: 1.414;
+  padding: 4px;
+  border-radius: 9px;
+  background: #fdfcf9;
+  box-shadow: 0 10px 24px rgba(10, 6, 40, 0.35), 0 2px 6px rgba(10, 6, 40, 0.25);
+  transition: transform 0.55s cubic-bezier(0.2, 1, 0.3, 1);
+}
+.cf-paper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 6px;
+  display: block;
+}
+.cf-paper-1 { left: 0;   top: 26px; transform: rotate(-7deg); }
+.cf-paper-2 { right: 0;  top: 16px; transform: rotate(6deg); }
+.cf-paper-3 { left: 11%; top: 36px; transform: rotate(-2deg); }
+.cf-paper-4 { right: 7%; top: 30px; transform: rotate(3deg); }
+
+/* front pocket */
+.cf-front {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 196px;
+  z-index: 3;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(122, 101, 240, 0.95) 0%, rgba(92, 70, 214, 0.97) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 -12px 30px rgba(20, 10, 60, 0.32);
+  transform-origin: 50% 100%;
+  transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+.cf-front::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 18px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+}
+.cf-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+  pointer-events: none;
+}
+
+/* paper label with a strip of tape */
+.cf-label {
+  position: absolute;
+  left: 30px;
+  top: 28px;
+  width: 66%;
+  z-index: 1;
+  padding: 14px 16px 12px;
+  border-radius: 10px;
+  background: #fdfcf8;
+  box-shadow: 0 10px 22px rgba(20, 10, 60, 0.28), 0 2px 5px rgba(20, 10, 60, 0.18);
+  transform: rotate(-2.5deg);
+  transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+.cf-label::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 64px;
+  height: 18px;
+  border-radius: 3px;
+  background: rgba(196, 181, 253, 0.82);
+  box-shadow: 0 1px 3px rgba(20, 10, 60, 0.15);
+  transform: translateX(-50%) rotate(2deg);
+}
+.cf-eyebrow {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #7c5cf6;
+  white-space: nowrap;
+}
+.cf-title {
+  margin-top: 6px;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #16123a;
+}
+.cf-rule {
+  margin: 9px 0 7px;
+  border-top: 1.5px dashed #c4b5fd;
+}
+.cf-sub {
+  font-size: 11px;
+  color: #6b6587;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cf-count {
+  position: absolute;
+  left: 30px;
+  bottom: 24px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* round "VERIFIED" stamp */
+.cf-stamp {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  z-index: 1;
+  width: 86px;
+  height: 86px;
+  opacity: 0.85;
+  transform: rotate(-12deg);
+  transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+.cf-stamp-ring { fill: none; stroke: rgba(255, 255, 255, 0.8); stroke-width: 2; }
+.cf-stamp-dashed { stroke-width: 1.2; stroke-dasharray: 3 3; opacity: 0.8; }
+.cf-stamp-text { fill: rgba(255, 255, 255, 0.95); font-size: 11px; font-weight: 800; letter-spacing: 2px; }
+.cf-stamp-small { font-size: 7px; letter-spacing: 1.6px; font-weight: 700; }
+.cf-stamp-check { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* hover / keyboard focus: papers rise and fan, the pocket opens toward you */
+.cf-folder:not(.cf-folder-replica):hover .cf-back,
+.cf-folder:not(.cf-folder-replica):focus-visible .cf-back { transform: translateY(-4px); }
+.cf-folder:not(.cf-folder-replica):hover .cf-tab,
+.cf-folder:not(.cf-folder-replica):focus-visible .cf-tab { transform: translateY(-4px); }
+.cf-folder:hover .cf-paper-1, .cf-folder:focus-visible .cf-paper-1 { transform: translate(-12px, -30px) rotate(-11deg); }
+.cf-folder:hover .cf-paper-2, .cf-folder:focus-visible .cf-paper-2 { transform: translate(12px, -34px) rotate(10deg); }
+.cf-folder:hover .cf-paper-3, .cf-folder:focus-visible .cf-paper-3 { transform: translate(-4px, -24px) rotate(-4deg); }
+.cf-folder:hover .cf-paper-4, .cf-folder:focus-visible .cf-paper-4 { transform: translate(4px, -28px) rotate(5deg); }
+.cf-folder:hover .cf-front, .cf-folder:focus-visible .cf-front { transform: rotateX(-14deg); }
+.cf-folder:hover .cf-label, .cf-folder:focus-visible .cf-label { transform: rotate(-1deg) translateY(-2px); }
+.cf-folder:hover .cf-stamp, .cf-folder:focus-visible .cf-stamp { transform: rotate(-4deg) scale(1.04); }
+.cf-folder:focus-visible .cf-back { outline: 2px solid #a78bfa; outline-offset: 4px; }
+
+/* ── Hint pill ──────────────────────────────────────────────────────── */
+.cf-hint {
+  margin-top: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #cbd5e1;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.cf-hint-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a78bfa;
+  box-shadow: 0 0 10px #a78bfa;
+}
+
+/* ── Open state ─────────────────────────────────────────────────────── */
+.cf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.cf-overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 3, 15, 0.84);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.cf-overlay.is-open .cf-overlay-bg { opacity: 1; }
+.cf-overlay.is-closing .cf-overlay-bg { opacity: 0; transition-delay: 0.15s; }
+
+.cf-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-height: calc(100dvh - 90px);
+  max-width: 100%;
+}
+
+.cf-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 210px);
+  gap: 18px;
+}
+
+.cf-card {
+  display: block;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  font: inherit;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(110px) scale(0.6) rotate(var(--rot, 0deg));
+  transition:
+    transform 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) var(--delay, 0s),
+    opacity 0.3s ease var(--delay, 0s),
+    box-shadow 0.3s ease;
+}
+.cf-overlay.is-open .cf-card {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(var(--rot, 0deg));
+}
+.cf-overlay.is-settled .cf-card { transition-delay: 0s; }
+.cf-overlay.is-open .cf-card:hover,
+.cf-overlay.is-open .cf-card:focus-visible {
+  transform: translateY(-10px) scale(1.04) rotate(0deg);
+  box-shadow: 0 34px 80px rgba(124, 92, 246, 0.45), 0 0 0 2px rgba(167, 139, 250, 0.7);
+  outline: none;
+}
+.cf-overlay.is-closing .cf-card {
+  opacity: 0;
+  transform: translateY(110px) scale(0.6) rotate(var(--rot, 0deg));
+  transition-delay: var(--close-delay, 0s);
+}
+
+.cf-card-thumb {
+  position: relative;
+  aspect-ratio: 1.414;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+.cf-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+.cf-card-view {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(22, 18, 58, 0.82);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -40%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.cf-card:hover .cf-card-view,
+.cf-card:focus-visible .cf-card-view { opacity: 1; transform: translate(-50%, -50%); }
+
+.cf-card-info { padding: 11px 13px 12px; }
+.cf-card-issuer {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7c5cf6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-card-title {
+  margin-top: 4px;
+  min-height: 2.7em;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #1e1b4b;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cf-card-meta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748b;
+}
+.cf-card-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #059669;
+  font-weight: 700;
+}
+
+/* the folder the cards came out of */
+.cf-folder-replica {
+  zoom: 0.72;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+.cf-overlay.is-open .cf-folder-replica { opacity: 1; transform: none; }
+.cf-overlay.is-closing .cf-folder-replica { opacity: 0; transform: translateY(40px); transition-delay: 0.12s; }
+
+.cf-overlay-hint {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.45s;
+}
+.cf-overlay.is-open .cf-overlay-hint { opacity: 1; }
+.cf-overlay.is-closing .cf-overlay-hint { opacity: 0; transition-delay: 0s; }
+
+/* ── Lightbox ───────────────────────────────────────────────────────── */
+.cf-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(3, 7, 18, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.cf-lightbox-panel {
+  width: 100%;
+  max-width: 1024px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(99, 102, 241, 0.3);
+}
+.cf-lightbox-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.15) 0%, rgba(99, 102, 241, 0.08) 100%);
+}
+.cf-lightbox-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #818cf8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-lightbox-title { margin-top: 3px; font-size: 16px; font-weight: 700; line-height: 1.3; color: #fff; }
+.cf-lightbox-meta { margin-top: 2px; font-size: 12px; color: #94a3b8; }
+.cf-icon-btn {
+  padding: 10px;
+  border-radius: 12px;
+  color: #94a3b8;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.cf-icon-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .cf-cards { grid-template-columns: repeat(2, 200px); gap: 14px; }
+  .cf-folder-replica { zoom: 0.6; }
+}
+@media (max-width: 460px) {
+  .cf-folder { zoom: 0.84; }
+  .cf-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 10px; }
+  .cf-card-info { padding: 9px 10px 10px; }
+  .cf-card-title { font-size: 12px; }
+  .cf-folder-replica { zoom: 0.5; }
+  .cf-hint { font-size: 12px; }
+}
+@media (max-height: 760px) and (min-width: 961px) {
+  .cf-folder-replica { zoom: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-back, .cf-tab, .cf-paper, .cf-front, .cf-label, .cf-stamp,
+  .cf-card, .cf-folder-replica, .cf-overlay-bg { transition-duration: 0.01s !important; transition-delay: 0s !important; }
+}
