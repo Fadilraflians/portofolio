@@ -12,24 +12,54 @@ const EffectsLayer: React.FC = () => {
     let tx = gx;
     let ty = gy;
 
-    const onMove = (e: PointerEvent) => {
-      tx = e.clientX;
-      ty = e.clientY;
+    // Reading the page height forces a layout, so only do it when something may have changed it.
+    const progress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (barRef.current) barRef.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
     };
+    let scrolled = true;
+
     const tick = () => {
+      raf = 0;
+      if (scrolled) {
+        scrolled = false;
+        progress();
+      }
       gx += (tx - gx) * 0.12;
       gy += (ty - gy) * 0.12;
       if (glowRef.current) glowRef.current.style.transform = `translate3d(${gx - 300}px, ${gy - 300}px, 0)`;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (barRef.current) barRef.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
-      raf = requestAnimationFrame(tick);
+      // sleep once the glow has caught up with the cursor
+      if (Math.abs(tx - gx) + Math.abs(ty - gy) > 0.3) raf = requestAnimationFrame(tick);
+    };
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    const onMove = (e: PointerEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      wake();
+    };
+    const onScroll = () => {
+      scrolled = true;
+      wake();
     };
 
+    // Endless CSS animations keep costing style and paint time off screen: pause them there.
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => e.target.classList.toggle('fx-paused', !e.isIntersecting));
+    }, { rootMargin: '120px' });
+    document.querySelectorAll('main section, footer').forEach((el) => io.observe(el));
+
     window.addEventListener('pointermove', onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    wake();
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
       window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
     };
   }, []);
 

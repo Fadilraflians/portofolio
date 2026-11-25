@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TiltCard from './TiltCard';
-import HalftoneReveal from './HalftoneReveal';
+import SuitUp from './SuitUp';
 import Float3D from './Float3D';
 
 // floating sparks in front of the figure (pulled forward in depth by Float3D)
@@ -14,7 +14,7 @@ const SPARKS = [
   { x: '72%', y: '86%', size: 2, color: '#ffffff', dur: 4.3, delay: 2.4 },
   { x: '26%', y: '90%', size: 2, color: '#a78bfa', dur: 3.6, delay: 0.9 },
 ];
-import { User, Code, Award, Building2, MousePointerClick } from 'lucide-react';
+import { User, Code, Award, Building2 } from 'lucide-react';
 
 const stats = [
   { value: '3.66', label: 'IPK / GPA (Cum Laude)', sub: 'Telkom University', color: 'text-cyan-400' },
@@ -42,6 +42,9 @@ const highlights = [
 ];
 
 const AboutSection: React.FC = () => {
+  const [suited, setSuited] = useState(false);
+  const toggleSuit = () => setSuited(v => !v);
+
   return (
     <section id="about" className="py-24 relative z-10 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 xl:px-12">
@@ -62,7 +65,7 @@ const AboutSection: React.FC = () => {
           
           {/* Left Column — Bio & Highlights */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800/80 backdrop-blur-md space-y-4">
+            <div className="p-6 rounded-2xl bg-slate-950/85 border border-slate-800/80 space-y-4">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <User className="w-5 h-5 text-cyan-400" />
                 <span>Ringkasan Profil</span>
@@ -78,7 +81,7 @@ const AboutSection: React.FC = () => {
                 return (
                   <div
                     key={idx}
-                    className="p-5 rounded-2xl bg-slate-950/70 border border-slate-800/80 hover:border-cyan-500/40 transition-all duration-300 backdrop-blur-md flex items-start gap-4 group"
+                    className="p-5 rounded-2xl bg-slate-950/85 border border-slate-800/80 hover:border-cyan-500/40 transition-all duration-300 flex items-start gap-4 group"
                   >
                     <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0 group-hover:scale-110 transition-transform">
                       <Icon className="w-5 h-5" />
@@ -97,10 +100,10 @@ const AboutSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column — Halftone reveal: Fadil first, Iron Man under the cursor */}
+          {/* Right Column — Fadil suits up into the Iron Man armour, piece by piece */}
           <div className="lg:col-span-5 order-first lg:order-none flex flex-col items-center">
             <Float3D
-              className="w-full max-w-[300px] sm:max-w-[340px] aspect-[868/1550]"
+              className="w-full max-w-[360px] sm:max-w-[440px] aspect-[944/1340]"
               max={12}
               back={
                 <>
@@ -112,11 +115,6 @@ const AboutSection: React.FC = () => {
                         'radial-gradient(closest-side, rgba(34,211,238,0.2), rgba(59,130,246,0.1) 55%, transparent 100%)',
                       opacity: 'calc(0.85 + var(--lift, 0) * 0.15)',
                     }}
-                  />
-                  {/* thin energy halo behind the torso */}
-                  <div
-                    className="absolute left-1/2 top-[16%] w-[78%] aspect-square -translate-x-1/2 rounded-full border border-cyan-300/15"
-                    style={{ boxShadow: '0 0 40px rgba(34,211,238,0.12), inset 0 0 40px rgba(34,211,238,0.08)' }}
                   />
                 </>
               }
@@ -142,34 +140,44 @@ const AboutSection: React.FC = () => {
               }
             >
               <div
-                className="relative w-full h-full cursor-crosshair"
+                className="relative w-full h-full cursor-pointer"
                 role="img"
-                aria-label="Fadil Rafliansyah — arahkan kursor untuk melihat armor Iron Man"
+                aria-label="Fadil Rafliansyah memakai armor Iron Man bagian demi bagian"
+                onClick={toggleSuit}
               >
-                <HalftoneReveal
-                  src="/fadil-flight.webp"
-                  revealSrc="/ironman-suit.webp"
-                  fit="contain"
-                  cellSize={5}
-                  angle={45}
-                  revealRadius={120}
-                  softness={0.9}
-                  linger={1.8}
-                  smoothing={0.06}
-                  clickBurst
-                  intro
-                  style={{ touchAction: 'pan-y' }}
+                <SuitUp
+                  src="/fadil-hero.webp"
+                  armorSrc="/ironman-hero.webp"
+                  suited={suited}
+                  onFirstView={() => setSuited(true)}
                 />
               </div>
             </Float3D>
 
-            <div className="mt-2 text-center space-y-1">
+            <div className="relative z-10 mt-5 flex flex-col items-center text-center space-y-1">
+              <button
+                type="button"
+                onClick={toggleSuit}
+                aria-label={suited ? 'Lepas armor Iron Man' : 'Pakai armor Iron Man'}
+                className="w-16 h-16 rounded-full border-2 border-amber-400 text-amber-50 flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-transform"
+                style={{
+                  background: 'radial-gradient(circle at 50% 35%, #c2323f, #7f1420 60%, #4a0a12)',
+                  boxShadow: '0 0 22px rgba(251,191,36,0.45), inset 0 0 12px rgba(0,0,0,0.5)',
+                }}
+              >
+                {/* arc reactor */}
+                <svg viewBox="0 0 48 48" className="w-9 h-9" fill="none" stroke="currentColor" aria-hidden="true">
+                  <circle cx="24" cy="24" r="20" strokeWidth="2" />
+                  <circle cx="24" cy="24" r="15" strokeWidth="5" strokeDasharray="6.4 3.02" />
+                  <circle cx="24" cy="24" r="10" strokeWidth="1.5" />
+                  <path d="M24 18.5 29.5 28h-11Z" fill="currentColor" strokeWidth="1" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <div className="pt-1 pb-2 text-[11px] font-mono uppercase tracking-widest text-slate-400">
+                {suited ? 'Lepas armor' : 'Pakai armor'}
+              </div>
               <div className="font-bold text-white text-lg">Fadil Rafliansyah, S.Kom</div>
               <div className="text-xs text-cyan-400">S1 Informatika Telkom University</div>
-              <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] font-mono uppercase tracking-widest text-slate-500">
-                <MousePointerClick className="w-3.5 h-3.5" />
-                <span>Hover / klik untuk suit up</span>
-              </div>
             </div>
           </div>
 
@@ -180,7 +188,7 @@ const AboutSection: React.FC = () => {
           {stats.map((stat, idx) => (
             <TiltCard key={idx} max={14}>
             <div
-              className="h-full p-6 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-slate-800/80 text-center hover:border-cyan-500/40 transition-all duration-300 group shadow-lg"
+              className="h-full p-6 rounded-2xl bg-slate-950/85 border border-slate-800/80 text-center hover:border-cyan-500/40 transition-all duration-300 group shadow-lg"
             >
               <div className={`text-3xl sm:text-4xl font-black mb-1 ${stat.color} group-hover:scale-105 transition-transform`}>
                 {stat.value}

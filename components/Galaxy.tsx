@@ -6,6 +6,9 @@ import './Galaxy.css';
 const MAX_LAYERS = 8;
 const MAX_COLORS = 4;
 const INTRO_SECONDS = 2.2;
+// The stars drift slowly, so a full-screen shader pass on every display refresh is wasted GPU time.
+const FRAME_MS = 1000 / 30;
+const MIN_QUALITY = 0.5;
 
 const VERTEX = `#version 300 es
 in vec2 aPosition;
@@ -106,6 +109,23 @@ vec3 StarLayer(vec2 uv, vec2 radial, vec2 repelAt, float pushCells, float spread
       vec2 si = id + offset;
       float seed = Hash21(si);
       float size = fract(seed * 345.32);
+      vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+      vec2 shift = vec2(0.0);
+      float invReach = 1.0;
+#ifdef REPEL
+      vec2 away = si + 0.5 + pad - repelAt;
+      float dist = length(away);
+      float q = dist * spread;
+      float cells = pushCells * exp(-q * q);
+      float moved = cells * inversesqrt(1.0 + cells * cells * 2.78);
+      shift = away * (moved / max(dist, 0.0001));
+      invReach = 1.0 / (1.0 - moved);
+#endif
+      vec2 rel = gv - offset - pad - shift;
+#ifndef WARP
+      // a star fades out completely at this distance: most of the nine neighbours stop here
+      if (dot(rel, rel) * invReach * invReach >= 1.0 || size < 0.04) continue;
+#endif
       float glossLocal = tri(uGloss / (PERIOD * seed + 1.0));
       float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
 
@@ -124,19 +144,7 @@ vec3 StarLayer(vec2 uv, vec2 radial, vec2 repelAt, float pushCells, float spread
       base = hsv2rgb(vec3(hue, sat, val));
 #endif
 
-      vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
-      vec2 shift = vec2(0.0);
-      float invReach = 1.0;
-#ifdef REPEL
-      vec2 away = si + 0.5 + pad - repelAt;
-      float dist = length(away);
-      float q = dist * spread;
-      float cells = pushCells * exp(-q * q);
-      float moved = cells * inversesqrt(1.0 + cells * cells * 2.78);
-      shift = away * (moved / max(dist, 0.0001));
-      invReach = 1.0 / (1.0 - moved);
-#endif
-      float star = Star(gv - offset - pad - shift, flareSize, radial, invReach);
+      float star = Star(rel, flareSize, radial, invReach);
       float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
       twinkle = mix(1.0, twinkle, uTwinkleIntensity);
       col += star * twinkle * size * base;
@@ -182,6 +190,7 @@ void main() {
     float depth = fract(i + uDepth);
     float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
     float fade = depth * smoothstep(1.0, 0.9, depth);
+    if (fade < 0.01) continue;
     vec2 offset = vec2(i * 453.32);
     col += StarLayer(uv * scale + offset, radial, repelAt * scale + offset, push * scale, 1.0 / (scale * radius)) * fade;
   }
@@ -431,6 +440,10 @@ const Galaxy = ({
     let raf = 0;
     let last = 0;
     let visible = true;
+    let quality = 1; // resolution factor, lowered when the page cannot keep up
+    let lastTick = 0;
+    let slow = 0;
+    let ticks = 0;
 
     const render = () => {
       const s = settingsRef.current;
@@ -484,6 +497,23 @@ const Galaxy = ({
     const frame = (now: number) => {
       raf = 0;
       if (!visible || document.hidden) return;
+      // watch the page's real frame time and trade sharpness for speed on weak GPUs
+      if (lastTick && now - lastTick < 250) {
+        ticks++;
+        if (now - lastTick > 22) slow++;
+        if (ticks >= 60) {
+          if (slow > 20 && quality > MIN_QUALITY) {
+            quality = Math.max(MIN_QUALITY, quality * 0.8);
+            size();
+          }
+          ticks = slow = 0;
+        }
+      }
+      lastTick = now;
+      if (last && now - last < FRAME_MS - 3) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const s = settingsRef.current;
       const dt = last ? clamp((now - last) / 1000, 0.0005, 0.05) : 1 / 60;
       last = now;
@@ -522,13 +552,17 @@ const Galaxy = ({
       if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame);
     };
 
-    const resize = () => {
+    const size = () => {
       const s = settingsRef.current;
       const width = Math.max(1, container.clientWidth);
       const height = Math.max(1, container.clientHeight);
-      const ratio = Math.min(s.dpr || window.devicePixelRatio || 1, 2);
+      const ratio = Math.min(s.dpr || window.devicePixelRatio || 1, 2) * quality;
       canvas.width = Math.max(1, Math.round(width * ratio));
       canvas.height = Math.max(1, Math.round(height * ratio));
+    };
+
+    const resize = () => {
+      size();
       render();
       wake();
     };

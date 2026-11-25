@@ -225,6 +225,9 @@
         animation: pulseGlow 4s ease-in-out infinite;
       }
 
+      /* set by EffectsLayer on sections outside the viewport */
+      .fx-paused, .fx-paused *, .fx-paused *::before, .fx-paused *::after { animation-play-state: paused !important; }
+
       /* ===== 3D TILT CARD ===== */
       .tilt-card {
         perspective: 1100px;
@@ -523,7 +526,7 @@
           promise.then(settle, settle);
         }
         // the heavy images the first screens need (same CORS mode as the app, so the cache is reused)
-        ['/fadil-photo.png', '/fadil-flight.webp', '/ironman-suit.webp'].forEach(function (src) {
+        ['/fadil-photo.png', '/fadil-hero.webp', '/ironman-hero.webp'].forEach(function (src) {
           track(new Promise(function (resolve) {
             var img = new Image();
             if (src.indexOf('.webp') > 0) img.crossOrigin = 'anonymous';

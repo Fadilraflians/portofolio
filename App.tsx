@@ -40,7 +40,7 @@ const App: React.FC = () => {
               <Galaxy
                 starColors={['#ffffff', '#67e8f9', '#a78bfa', '#818cf8']}
                 density={mobile ? 0.7 : 1}
-                layers={mobile ? 3 : 4}
+                layers={3}
                 glowIntensity={0.35}
                 twinkleIntensity={0.4}
                 starSpeed={0.35}
@@ -48,7 +48,7 @@ const App: React.FC = () => {
                 mouseRepulsion
                 repulsionStrength={2}
                 clickWarp={false}
-                dpr={1.5}
+                dpr={0.8}
               />
             </div>
           )}
