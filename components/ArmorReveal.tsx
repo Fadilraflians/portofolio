@@ -68,6 +68,10 @@ export interface HalftoneRevealProps {
   /** Local addition (with revealSrc): which photo is kept (false = `src`, true = `revealSrc`). A change plays
    *  the switch; changing it back mid-way runs the same film backwards from where it is. */
   flipped?: boolean;
+  /** `flipped` changes switch the photo at once, without playing the film. */
+  instant?: boolean;
+  /** After every frame: which photo is kept, and whether the pointer is revealing the other one. */
+  onDrawn?: (flipped: boolean, touching: boolean) => void;
   /** Fires once all pictures are loaded and the effect draws. */
   onReady?: () => void;
   /** How far the switch is, every frame of it: 0 = all `src`, 1 = all `revealSrc`. */
@@ -100,6 +104,7 @@ type Settings = {
   wander: boolean;
   clickBurst: boolean;
   interactive: boolean;
+  instant: boolean;
   bleed: [number, number];
   toggleOnTap: boolean;
   effect: string;
@@ -1308,6 +1313,8 @@ const ArmorReveal = ({
   effect = "halftone",
   webCenter = [0.5, 0.5],
   flipped = false,
+  instant = false,
+  onDrawn,
   onReady,
   onProgress,
   intro = true,
@@ -1319,7 +1326,7 @@ const ArmorReveal = ({
   const wakeRef = useRef<(() => void) | null>(null);
   const targetRef = useRef<((flipped: boolean) => void) | null>(null);
   const flippedRef = useRef(flipped);
-  const callbacksRef = useRef({ onReady, onProgress });
+  const callbacksRef = useRef({ onReady, onProgress, onDrawn });
   // True once the effect draws the photo; until then a plain image stands in.
   const [ready, setReady] = useState(false);
   const settings: Settings = {
@@ -1345,6 +1352,7 @@ const ArmorReveal = ({
     wander,
     clickBurst,
     interactive,
+    instant,
     bleed,
     toggleOnTap,
     effect,
@@ -1355,7 +1363,7 @@ const ArmorReveal = ({
   // Keep the latest props for the render loop (set outside render).
   useLayoutEffect(() => {
     settingsRef.current = settings;
-    callbacksRef.current = { onReady, onProgress };
+    callbacksRef.current = { onReady, onProgress, onDrawn };
   });
 
   useEffect(() => {
@@ -1923,6 +1931,14 @@ const ArmorReveal = ({
         brush.px = brush.x;
         brush.py = brush.y;
         const intro = drawView(s, now);
+        if (waiting <= 0)
+          callbacksRef.current.onDrawn?.(
+            state.flipped,
+            engaged ||
+              state.presence > 0.002 ||
+              bursts.length > 0 ||
+              now < state.trailUntil,
+          );
 
         const busy =
           engaged ||
@@ -2055,7 +2071,7 @@ const ArmorReveal = ({
       }
 
       const locatePointer = (event: PointerEvent) => {
-        if (event.target !== container) return;
+        if (event.target !== container && event.target !== canvas) return;
         pointer.x = event.offsetX + state.bleedX;
         pointer.y = event.offsetY + state.bleedY;
         pointer.placed = true;
@@ -2087,6 +2103,12 @@ const ArmorReveal = ({
       // Head for the asked photo; a switch already running the other way turns round where it is.
       targetRef.current = (wanted: boolean) => {
         if (waiting > 0) return;
+        if (settingsRef.current.instant) {
+          state.flip = null;
+          state.flipped = wanted;
+          wake();
+          return;
+        }
         if (state.flip) {
           // a running switch ends on the opposite of state.flipped
           if (wanted !== state.flipped) return;
