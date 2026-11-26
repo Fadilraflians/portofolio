@@ -41,6 +41,10 @@ const highlights = [
   },
 ];
 
+// The full suit-up (reactor button, automatic transformation, thrusters) is not released yet:
+// for now only the touch / hover reveal on the photo is on.
+const SUIT_UP_ENABLED: boolean = false;
+
 const AboutSection: React.FC = () => {
   const [suited, setSuited] = useState(false);
   const toggleSuit = () => setSuited(v => !v);
@@ -100,7 +104,7 @@ const AboutSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column — Fadil suits up into the Iron Man armour, piece by piece */}
+          {/* Right Column — touching the photo reveals the Iron Man armour */}
           <div className="lg:col-span-5 order-first lg:order-none flex flex-col items-center">
             <Float3D
               className="w-full max-w-[360px] sm:max-w-[440px] aspect-[944/1340]"
@@ -139,43 +143,47 @@ const AboutSection: React.FC = () => {
                 </>
               }
             >
+              {/* hover / tap: nanotech reveal of the armour under the pointer */}
               <div
-                className="relative w-full h-full cursor-pointer"
+                className="relative w-full h-full"
                 role="img"
-                aria-label="Fadil Rafliansyah memakai armor Iron Man bagian demi bagian"
-                onClick={toggleSuit}
+                aria-label="Foto Fadil Rafliansyah, sentuh untuk melihat armor Iron Man"
               >
                 <SuitUp
                   src="/fadil-hero.webp"
                   armorSrc="/ironman-hero.webp"
                   suited={suited}
-                  onFirstView={() => setSuited(true)}
+                  onFirstView={SUIT_UP_ENABLED ? () => setSuited(true) : undefined}
                 />
               </div>
             </Float3D>
 
             <div className="relative z-10 mt-5 flex flex-col items-center text-center space-y-1">
-              <button
-                type="button"
-                onClick={toggleSuit}
-                aria-label={suited ? 'Lepas armor Iron Man' : 'Pakai armor Iron Man'}
-                className="w-16 h-16 rounded-full border-2 border-amber-400 text-amber-50 flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-transform"
-                style={{
-                  background: 'radial-gradient(circle at 50% 35%, #c2323f, #7f1420 60%, #4a0a12)',
-                  boxShadow: '0 0 22px rgba(251,191,36,0.45), inset 0 0 12px rgba(0,0,0,0.5)',
-                }}
-              >
-                {/* arc reactor */}
-                <svg viewBox="0 0 48 48" className="w-9 h-9" fill="none" stroke="currentColor" aria-hidden="true">
-                  <circle cx="24" cy="24" r="20" strokeWidth="2" />
-                  <circle cx="24" cy="24" r="15" strokeWidth="5" strokeDasharray="6.4 3.02" />
-                  <circle cx="24" cy="24" r="10" strokeWidth="1.5" />
-                  <path d="M24 18.5 29.5 28h-11Z" fill="currentColor" strokeWidth="1" strokeLinejoin="round" />
-                </svg>
-              </button>
-              <div className="pt-1 pb-2 text-[11px] font-mono uppercase tracking-widest text-slate-400">
-                {suited ? 'Lepas armor' : 'Pakai armor'}
-              </div>
+              {SUIT_UP_ENABLED && (
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleSuit}
+                    aria-label={suited ? 'Lepas armor Iron Man' : 'Pakai armor Iron Man'}
+                    className="w-16 h-16 rounded-full border-2 border-amber-400 text-amber-50 flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-transform"
+                    style={{
+                      background: 'radial-gradient(circle at 50% 35%, #c2323f, #7f1420 60%, #4a0a12)',
+                      boxShadow: '0 0 22px rgba(251,191,36,0.45), inset 0 0 12px rgba(0,0,0,0.5)',
+                    }}
+                  >
+                    {/* arc reactor */}
+                    <svg viewBox="0 0 48 48" className="w-9 h-9" fill="none" stroke="currentColor" aria-hidden="true">
+                      <circle cx="24" cy="24" r="20" strokeWidth="2" />
+                      <circle cx="24" cy="24" r="15" strokeWidth="5" strokeDasharray="6.4 3.02" />
+                      <circle cx="24" cy="24" r="10" strokeWidth="1.5" />
+                      <path d="M24 18.5 29.5 28h-11Z" fill="currentColor" strokeWidth="1" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  <div className="pt-1 pb-2 text-[11px] font-mono uppercase tracking-widest text-slate-400">
+                    {suited ? 'Lepas armor' : 'Pakai armor'}
+                  </div>
+                </>
+              )}
               <div className="font-bold text-white text-lg">Fadil Rafliansyah, S.Kom</div>
               <div className="text-xs text-cyan-400">S1 Informatika Telkom University</div>
             </div>
